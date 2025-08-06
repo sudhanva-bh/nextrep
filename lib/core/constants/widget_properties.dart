@@ -11,5 +11,3 @@ class WidgetProperties {
     ),
   ];
 }
-
-class Hello {}
