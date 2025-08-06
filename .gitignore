@@ -47,4 +47,9 @@ app.*.map.json
 # Assets are ignored temporarily
 # /assets
 
+# Ignore firebaseOptions
+lib/firebase_options.dart
+
+# /assets
+
 lib/firebase_options.dart
