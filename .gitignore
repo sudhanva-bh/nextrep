@@ -45,4 +45,7 @@ app.*.map.json
 /android/app/release
 
 # Assets are ignored temporarily
-/assets
+# /assets
+
+# Ignore firebaseOptions
+lib/firebase_options.dart
