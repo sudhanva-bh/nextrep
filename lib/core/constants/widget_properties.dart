@@ -11,3 +11,5 @@ class WidgetProperties {
     ),
   ];
 }
+
+class Hello {}
