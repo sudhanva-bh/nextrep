@@ -1,0 +1,16 @@
+image: gitpod/workspace-full:latest
+
+tasks:
+  - init: |
+      # Install Flutter
+      git clone https://github.com/flutter/flutter.git -b stable $HOME/flutter
+      echo 'export PATH="$HOME/flutter/bin:$PATH"' >> $GITPOD_ENV_FILE
+      export PATH="$HOME/flutter/bin:$PATH"
+      flutter doctor
+    command: |
+      export PATH="$HOME/flutter/bin:$PATH"
+      flutter pub get
+
+ports:
+  - port: 8080
+    onOpen: open-preview
