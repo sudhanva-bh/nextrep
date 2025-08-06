@@ -20,7 +20,7 @@
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAP-HzXNO1xP9aH9QifYwX0KQNx4Gb7uR4"
+          "current_key": "AIzaSyCxDA1QXXrCgyI-3elPZEVA67CdzGsq6B8"
         }
       ],
       "services": {
@@ -29,6 +29,13 @@
             {
               "client_id": "808078870152-ck2inoa8vljomrs72d39gt3shdvdfusq.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "808078870152-j8ussprgeq970lptiris7dj0setv7i6v.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.nextrep"
+              }
             }
           ]
         }
