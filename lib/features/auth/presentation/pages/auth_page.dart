@@ -89,80 +89,113 @@ class _AuthPageState extends ConsumerState<AuthPage> {
   }
 
   Future<void> registerWithEmailPassword() async {
-    if (formKey.currentState!.validate()) {
-      setState(() {
-        isLoading = true;
-      });
+  if (formKey.currentState!.validate()) {
+    print("✅ Form validated for Register");
 
-      final name = controllers["name"]!.text;
-      final email = controllers["email"]!.text;
-      final password = controllers["password"]!.text;
+    setState(() {
+      isLoading = true;
+    });
 
-      final authController = ref.read(authControllerProvider);
+    final name = controllers["name"]!.text;
+    final email = controllers["email"]!.text;
+    final password = controllers["password"]!.text;
+    print("📌 Register details => name: $name, email: $email");
 
-      final authResult = await authController.emailRegister(email, password);
+    final authController = ref.read(authControllerProvider);
+    print("🔍 Calling emailRegister...");
 
-      authResult.fold(
-        (failure) {
+    final authResult = await authController.emailRegister(email, password);
+    print("📌 emailRegister completed");
+
+    authResult.fold(
+      (failure) {
+        print("❌ Register failed: ${failure.message}");
+        setState(() {
           isLoading = false;
-          showSnackBar(context, failure.message);
-        },
-        (user) async {
-          final syncResult = await authController.syncOnRegister(
-            user.uid,
-            name,
-          );
+        });
+        showSnackBar(context, failure.message);
+      },
+      (user) async {
+        print("✅ Register success, uid: ${user.uid}");
+        print("🔍 Calling syncOnRegister...");
 
-          syncResult.fold(
-            (failure) {
-              isLoading = false;
-              showSnackBar(context, failure.message);
-            },
-            (_) {
-              isLoading = false;
-              NavigateWithFadeNoBack(context, GenderCollection());
-            },
-          );
-        },
-      );
-    }
-  }
+        final syncResult = await authController.syncOnRegister(
+          user.uid,
+          name,
+        );
+        print("📌 syncOnRegister completed");
 
-  Future<void> loginWithEmailPassword() async {
-    if (formKey.currentState!.validate()) {
-      setState(() {
-        isLoading = true;
-      });
-
-      final email = controllers["email"]!.text;
-      final password = controllers["password"]!.text;
-
-      final authController = ref.read(authControllerProvider);
-
-      final authResult = await authController.emailSignIn(email, password);
-
-      authResult.fold(
-        (failure) {
+        setState(() {
           isLoading = false;
-          showSnackBar(context, failure.message);
-        },
-        (user) async {
-          final syncResult = await authController.syncOnLogin(user.uid);
+        });
 
-          syncResult.fold(
-            (failure) {
-              isLoading = false;
-              showSnackBar(context, failure.message);
-            },
-            (_) {
-              isLoading = false;
-              NavigateWithFadeNoBack(context, HomePage());
-            },
-          );
-        },
-      );
-    }
+        syncResult.fold(
+          (failure) {
+            print("❌ syncOnRegister failed: ${failure.message}");
+            showSnackBar(context, failure.message);
+          },
+          (_) {
+            print("✅ syncOnRegister success -> Navigating to GenderCollection");
+            NavigateWithFadeNoBack(context, GenderCollection());
+          },
+        );
+      },
+    );
   }
+}
+
+Future<void> loginWithEmailPassword() async {
+  if (formKey.currentState!.validate()) {
+    print("✅ Form validated for Login");
+
+    setState(() {
+      isLoading = true;
+    });
+
+    final email = controllers["email"]!.text;
+    final password = controllers["password"]!.text;
+    print("📌 Login details => email: $email");
+
+    final authController = ref.read(authControllerProvider);
+    print("🔍 Calling emailSignIn...");
+
+    final authResult = await authController.emailSignIn(email, password);
+    print("📌 emailSignIn completed");
+
+    authResult.fold(
+      (failure) {
+        print("❌ Login failed: ${failure.message}");
+        setState(() {
+          isLoading = false;
+        });
+        showSnackBar(context, failure.message);
+      },
+      (user) async {
+        print("✅ Login success, uid: ${user.uid}");
+        print("🔍 Calling syncOnLogin...");
+
+        final syncResult = await authController.syncOnLogin(user.uid);
+        print("📌 syncOnLogin completed");
+
+        setState(() {
+          isLoading = false;
+        });
+
+        syncResult.fold(
+          (failure) {
+            print("❌ syncOnLogin failed: ${failure.message}");
+            showSnackBar(context, failure.message);
+          },
+          (_) {
+            print("✅ syncOnLogin success -> Navigating to HomePage");
+            NavigateWithFadeNoBack(context, HomePage());
+          },
+        );
+      },
+    );
+  }
+}
+
 
   void continueWithGoogle() {}
 

@@ -1,22 +1,49 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:nextrep/core/error/failure.dart';
+import 'package:nextrep/core/services/challenges/challenges_service.dart';
+import 'package:nextrep/core/services/challenges/firebase_challenge_service.dart';
+import 'package:nextrep/core/services/exercises/firebase_exercise_service.dart';
+import 'package:nextrep/core/services/exercises/workouts_service.dart';
 import 'package:nextrep/core/services/user_profile/user_profile_service.dart';
 import 'package:nextrep/core/services/user_profile/firebase_user_profile_service.dart';
 
+/// Handles syncing between local Hive storage and Firebase Firestore
 class ProfileSyncService {
-  final cloudService = FirebaseUserProfileService();
-  final localService = UserProfileService();
+  final userCloudService = FirebaseUserProfileService();
+  final userLocalService = UserProfileService();
+
+  final challengesCloudService = FirebaseChallengeService();
+  final challengesLocalService = ChallengesService();
+
+  final workoutsCloudService = FirebaseExerciseService();
+  final workoutsLocalService = WorkoutsService();
 
   /// Called after login: fetch from cloud and store locally
   Future<Either<Failure, Unit>> syncProfileOnLogin(String uid) async {
     try {
-      final cloudProfile = await cloudService.fetchProfile(uid);
-
-      if (cloudProfile == null) {
+      // --- Sync User Profile ---
+      final userCloudProfile = await userCloudService.fetchProfile(uid);
+      if (userCloudProfile == null) {
         return left(Failure('No profile found in cloud for UID: $uid'));
       }
+      await userLocalService.saveToLocal(userCloudProfile);
 
-      await localService.saveToLocal(cloudProfile);
+      // --- Sync User Challenges ---
+      final cloudChallenges = await challengesCloudService
+          .fetchProfileChallenges(uid);
+      if (cloudChallenges == null) {
+        return left(Failure('No challenges found in cloud for UID: $uid'));
+      }
+      await challengesLocalService.updateAllChallenges(cloudChallenges);
+
+      // --- Sync User Workouts ---
+      final cloudWorkouts = await workoutsCloudService.fetchProfileWorkouts(
+        uid,
+      );
+      if (cloudWorkouts == null) {
+        return left(Failure('No workouts found in cloud for UID: $uid'));
+      }
+      await workoutsLocalService.updateAllWorkouts(cloudWorkouts);
 
       return right(unit);
     } catch (e) {
@@ -24,20 +51,26 @@ class ProfileSyncService {
     }
   }
 
-  /// Called after register: create a new
+  /// Called after register: create a new cloud profile + presets
   Future<Either<Failure, Unit>> syncProfileOnRegister(
     String uid,
     String name,
   ) async {
     try {
-      await localService.createInitialProfile(name: name);
-      final localProfile = localService.getFromLocal();
-
+      // --- Create and Sync User Profile ---
+      await userLocalService.createInitialProfile(name: name);
+      final localProfile = userLocalService.getFromLocal();
       if (localProfile == null) {
-        return left(Failure('No profile found in local for UID: $uid'));
+        return left(Failure('Failed to create local profile for UID: $uid'));
       }
+      await userCloudService.uploadProfile(uid, localProfile);
 
-      await cloudService.uploadProfile(uid, localProfile);
+      // --- Create Preset Challenges ---
+      challengesLocalService.putPresetChallenges();
+
+      // --- Create Preset Workouts ---
+      workoutsLocalService.putPresetWorkouts();
+
       return right(unit);
     } catch (e) {
       return left(Failure(e.toString()));
@@ -47,14 +80,29 @@ class ProfileSyncService {
   /// Called before logout: push local to cloud and clear local storage
   Future<Either<Failure, Unit>> syncProfileOnLogout(String uid) async {
     try {
-      final localProfile = localService.getFromLocal();
-
+      // --- Sync & Clear User Profile ---
+      final localProfile = userLocalService.getFromLocal();
       if (localProfile == null) {
         return left(Failure('No profile found in local for UID: $uid'));
       }
+      await userCloudService.uploadProfile(uid, localProfile);
+      await userLocalService.deleteLocalProfile();
 
-      await cloudService.uploadProfile(uid, localProfile);
-      await localService.deleteLocalProfile();
+      // --- Sync & Clear Challenges ---
+      final allSavedChallenges = challengesLocalService.getAllChallenges();
+      await challengesCloudService.uploadProfileChallenges(
+        uid,
+        allSavedChallenges,
+      );
+      await challengesLocalService.deleteAllChallenges();
+
+      // --- Sync & Clear Workouts ---
+      final allSavedWorkouts = workoutsLocalService.getAllWorkouts();
+      await workoutsCloudService.uploadProfileWorkouts(
+        uid,
+        allSavedWorkouts,
+      );
+      await workoutsLocalService.deleteAllWorkouts();
 
       return right(unit);
     } catch (e) {
@@ -65,13 +113,26 @@ class ProfileSyncService {
   /// Called anytime to push local data to cloud manually
   Future<Either<Failure, Unit>> syncProfileOnCommand(String uid) async {
     try {
-      final localProfile = localService.getFromLocal();
-
+      // --- Sync User Profile ---
+      final localProfile = userLocalService.getFromLocal();
       if (localProfile == null) {
         return left(Failure('No profile found in local for UID: $uid'));
       }
+      await userCloudService.updateProfileFields(uid, localProfile.toMap());
 
-      await cloudService.updateProfileFields(uid, localProfile.toMap());
+      // --- Sync Challenges ---
+      final allSavedChallenges = challengesLocalService.getAllChallenges();
+      await challengesCloudService.uploadProfileChallenges(
+        uid,
+        allSavedChallenges,
+      );
+
+      // --- Sync Workouts ---
+      final allSavedWorkouts = workoutsLocalService.getAllWorkouts();
+      await workoutsCloudService.uploadProfileWorkouts(
+        uid,
+        allSavedWorkouts,
+      );
 
       return right(unit);
     } catch (e) {

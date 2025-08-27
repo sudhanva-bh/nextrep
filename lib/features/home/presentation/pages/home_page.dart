@@ -94,9 +94,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     ),
                     SizedBox(height: 14),
                     TodaysWorkout(
-                      workout: WorkoutsService(
-                        context: context,
-                      ).getWorkout("Arms Workout")!,
+                      workout: WorkoutsService().getWorkout("Arms Workout")!,
                     ),
                     SizedBox(height: 14),
                     BmiCard(

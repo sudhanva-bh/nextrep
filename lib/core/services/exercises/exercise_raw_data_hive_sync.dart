@@ -21,7 +21,7 @@ class ExerciseHiveSync {
       }
       debugPrint('✅ Exercises cached in Hive');
     } else {
-      debugPrint('📦 Exercises already cached');
+      debugPrint('📦 Raw Data of Exercises already cached');
     }
   }
 }

@@ -1,24 +1,23 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:hive_flutter/adapters.dart';
-
-import 'package:nextrep/core/common/utils/show_snackbar.dart';
+import 'package:nextrep/core/data/preset_workouts.dart';
 import 'package:nextrep/core/entities/workout/workout.dart';
 
 class WorkoutsService {
-  final BuildContext context;
-  WorkoutsService({required this.context});
-
   final box = Hive.box<Workout>('workoutsBox');
 
+  /// Retrieves a single [Workout] from Hive by its [workoutName].
   Workout? getWorkout(String workoutName) {
     return box.get(workoutName);
   }
 
+  /// Returns a list of all stored [Workout]s from Hive.
   List<Workout> getAllWorkouts() {
     return box.values.toList();
   }
 
+  /// Searches and returns a list of [Workout]s whose names
+  /// contain the given [query] (case-insensitive).
   List<Workout> searchWorkouts(String query) {
     final lowerQuery = query.toLowerCase();
     return box.values
@@ -28,18 +27,40 @@ class WorkoutsService {
         .toList();
   }
 
-  Future<void> syncWorkout(Workout workout) async {
+  /// Updates an existing [Workout] in Hive.
+  /// If the workout does not exist, this will add it as new.
+  Future<void> updateWorkout(Workout workout) async {
     await box.put(workout.workoutName, workout);
   }
 
+  /// Uploads a new [Workout] to Hive if it doesn't already exist.
   Future<void> uploadNewWorkout(Workout workout) async {
-    if (box.containsKey(workout.workoutName)) {
-      showSnackBar(context, "Workout ${workout.workoutName} Already Exists");
-    } else {
+    if (!box.containsKey(workout.workoutName)) {
       await box.put(workout.workoutName, workout);
-      if (context.mounted) {
-        showSnackBar(context, "Updated ${workout.workoutName} Successfully");
-      }
     }
+  }
+
+  /// Updates or inserts multiple [Workout]s at once.
+  Future<void> updateAllWorkouts(List<Workout> workouts) async {
+    final Map<String, Workout> entriesToUpdate = {
+      for (var workout in workouts) workout.workoutName: workout,
+    };
+
+    await box.putAll(entriesToUpdate);
+  }
+
+  Future<void> putPresetWorkouts() async {
+    if (box.isEmpty) {
+      for (final workout in PresetWorkouts.workouts) {
+        await box.put(workout.workoutName, workout);
+      }
+      debugPrint('✅ Preset Workouts cached in Hive');
+    } else {
+      debugPrint('📦 Preset Workouts already cached');
+    }
+  }
+
+  Future<void> deleteAllWorkouts() async {
+    await box.clear();
   }
 }

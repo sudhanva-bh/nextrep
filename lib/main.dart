@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:nextrep/auth_wrapper.dart';
+import 'package:nextrep/core/services/challenges/challenges_hive_sync.dart';
 import 'package:nextrep/core/services/exercises/workout_hive_sync.dart';
 import 'package:nextrep/core/services/exercises/exercise_raw_data_hive_sync.dart';
 import 'package:nextrep/core/theme/theme.dart';
@@ -22,11 +23,9 @@ void main() async {
   Hive.registerAdapter(UserProfileAdapter());
   await Hive.openBox<UserProfile>('user_profile');
 
-  // await Hive.deleteBoxFromDisk('exercisesBox');
-  // await Hive.deleteBoxFromDisk('workoutsBox');
-
   await ExerciseHiveSync.cacheExercisesToHive();
   await ExerciseModelHiveSync.exerciseModelsToHive();
+  await ChallengesHiveSync.challengeModelToHive();
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,

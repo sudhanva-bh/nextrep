@@ -38,7 +38,7 @@ class _BmiCardState extends State<BmiCard> {
     }
   }
 
-  void calculateParameters() {
+  Future<void> calculateParameters() async {
     height = widget.userProfile.height;
     weight = widget.userProfile.weight;
     target = widget.userProfile.targetWeight;
