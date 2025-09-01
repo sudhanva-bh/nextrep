@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nextrep/bottom_navigator_controller.dart';
 import 'package:nextrep/core/common/utils/loader.dart';
 import 'package:nextrep/core/common/utils/show_snackbar.dart';
 import 'package:nextrep/core/constants/file_paths.dart';
@@ -8,7 +9,6 @@ import 'package:nextrep/core/theme/app_palette.dart';
 import 'package:nextrep/features/auth/presentation/auth_controller.dart';
 import 'package:nextrep/features/auth/presentation/pages/login_section.dart';
 import 'package:nextrep/features/auth/presentation/pages/register_section.dart';
-import 'package:nextrep/features/home/presentation/pages/home_page.dart';
 import 'package:nextrep/features/metrics/presentation/pages/gender_collection.dart';
 
 class AuthPage extends ConsumerStatefulWidget {
@@ -89,113 +89,114 @@ class _AuthPageState extends ConsumerState<AuthPage> {
   }
 
   Future<void> registerWithEmailPassword() async {
-  if (formKey.currentState!.validate()) {
-    print("✅ Form validated for Register");
+    if (formKey.currentState!.validate()) {
+      print("✅ Form validated for Register");
 
-    setState(() {
-      isLoading = true;
-    });
+      setState(() {
+        isLoading = true;
+      });
 
-    final name = controllers["name"]!.text;
-    final email = controllers["email"]!.text;
-    final password = controllers["password"]!.text;
-    print("📌 Register details => name: $name, email: $email");
+      final name = controllers["name"]!.text;
+      final email = controllers["email"]!.text;
+      final password = controllers["password"]!.text;
+      print("📌 Register details => name: $name, email: $email");
 
-    final authController = ref.read(authControllerProvider);
-    print("🔍 Calling emailRegister...");
+      final authController = ref.read(authControllerProvider);
+      print("🔍 Calling emailRegister...");
 
-    final authResult = await authController.emailRegister(email, password);
-    print("📌 emailRegister completed");
+      final authResult = await authController.emailRegister(email, password);
+      print("📌 emailRegister completed");
 
-    authResult.fold(
-      (failure) {
-        print("❌ Register failed: ${failure.message}");
-        setState(() {
-          isLoading = false;
-        });
-        showSnackBar(context, failure.message);
-      },
-      (user) async {
-        print("✅ Register success, uid: ${user.uid}");
-        print("🔍 Calling syncOnRegister...");
+      authResult.fold(
+        (failure) {
+          print("❌ Register failed: ${failure.message}");
+          setState(() {
+            isLoading = false;
+          });
+          showSnackBar(context, failure.message);
+        },
+        (user) async {
+          print("✅ Register success, uid: ${user.uid}");
+          print("🔍 Calling syncOnRegister...");
 
-        final syncResult = await authController.syncOnRegister(
-          user.uid,
-          name,
-        );
-        print("📌 syncOnRegister completed");
+          final syncResult = await authController.syncOnRegister(
+            user.uid,
+            name,
+          );
+          print("📌 syncOnRegister completed");
 
-        setState(() {
-          isLoading = false;
-        });
+          setState(() {
+            isLoading = false;
+          });
 
-        syncResult.fold(
-          (failure) {
-            print("❌ syncOnRegister failed: ${failure.message}");
-            showSnackBar(context, failure.message);
-          },
-          (_) {
-            print("✅ syncOnRegister success -> Navigating to GenderCollection");
-            NavigateWithFadeNoBack(context, GenderCollection());
-          },
-        );
-      },
-    );
+          syncResult.fold(
+            (failure) {
+              print("❌ syncOnRegister failed: ${failure.message}");
+              showSnackBar(context, failure.message);
+            },
+            (_) {
+              print(
+                "✅ syncOnRegister success -> Navigating to GenderCollection",
+              );
+              NavigateWithFadeNoBack(context, GenderCollection());
+            },
+          );
+        },
+      );
+    }
   }
-}
 
-Future<void> loginWithEmailPassword() async {
-  if (formKey.currentState!.validate()) {
-    print("✅ Form validated for Login");
+  Future<void> loginWithEmailPassword() async {
+    if (formKey.currentState!.validate()) {
+      print("✅ Form validated for Login");
 
-    setState(() {
-      isLoading = true;
-    });
+      setState(() {
+        isLoading = true;
+      });
 
-    final email = controllers["email"]!.text;
-    final password = controllers["password"]!.text;
-    print("📌 Login details => email: $email");
+      final email = controllers["email"]!.text;
+      final password = controllers["password"]!.text;
+      print("📌 Login details => email: $email");
 
-    final authController = ref.read(authControllerProvider);
-    print("🔍 Calling emailSignIn...");
+      final authController = ref.read(authControllerProvider);
+      print("🔍 Calling emailSignIn...");
 
-    final authResult = await authController.emailSignIn(email, password);
-    print("📌 emailSignIn completed");
+      final authResult = await authController.emailSignIn(email, password);
+      print("📌 emailSignIn completed");
 
-    authResult.fold(
-      (failure) {
-        print("❌ Login failed: ${failure.message}");
-        setState(() {
-          isLoading = false;
-        });
-        showSnackBar(context, failure.message);
-      },
-      (user) async {
-        print("✅ Login success, uid: ${user.uid}");
-        print("🔍 Calling syncOnLogin...");
+      authResult.fold(
+        (failure) {
+          print("❌ Login failed: ${failure.message}");
+          setState(() {
+            isLoading = false;
+          });
+          showSnackBar(context, failure.message);
+        },
+        (user) async {
+          print("✅ Login success, uid: ${user.uid}");
+          print("🔍 Calling syncOnLogin...");
 
-        final syncResult = await authController.syncOnLogin(user.uid);
-        print("📌 syncOnLogin completed");
+          final syncResult = await authController.syncOnLogin(user.uid);
+          print("📌 syncOnLogin completed");
 
-        setState(() {
-          isLoading = false;
-        });
+          setState(() {
+            isLoading = false;
+          });
 
-        syncResult.fold(
-          (failure) {
-            print("❌ syncOnLogin failed: ${failure.message}");
-            showSnackBar(context, failure.message);
-          },
-          (_) {
-            print("✅ syncOnLogin success -> Navigating to HomePage");
-            NavigateWithFadeNoBack(context, HomePage());
-          },
-        );
-      },
-    );
+          syncResult.fold(
+            (failure) {
+              print("❌ syncOnLogin failed: ${failure.message}");
+              showSnackBar(context, failure.message);
+            },
+            (_) {
+              print("✅ syncOnLogin success -> Navigating to HomePage");
+              NavigateWithFadeNoBack(context, BottomNavigatorController());
+            },
+          );
+        },
+      );
+    }
   }
-}
-
 
   void continueWithGoogle() {}
 
@@ -258,7 +259,34 @@ Future<void> loginWithEmailPassword() async {
                                 color: AppPalette.surface,
                                 borderRadius: BorderRadius.circular(32),
                               ),
-                              child: currentSection,
+                              child: Column(
+                                children: [
+                                  currentSection,
+                                  IconButton(
+                                    onPressed: () async {
+                                      final authResult = await ref
+                                          .read(authControllerProvider)
+                                          .emailSignIn(
+                                            "bhsudhanva@gmail.com",
+                                            "Test123",
+                                          );
+                                      authResult.fold(
+                                        (_) {},
+                                        (user) async {
+                                          await ref
+                                              .read(authControllerProvider)
+                                              .syncOnLogin(user.uid);
+                                          NavigateWithFadeNoBack(
+                                            context,
+                                            BottomNavigatorController(),
+                                          );
+                                        },
+                                      );
+                                    },
+                                    icon: const Icon(Icons.lock),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                           const SizedBox(

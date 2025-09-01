@@ -22,7 +22,7 @@ class Exercise extends HiveObject {
   final String bodyPart;
 
   @HiveField(5)
-  final String targetMuscle; // mapped from 'target' in JSON
+  final String targetMuscle;
 
   @HiveField(6)
   final List<String> secondaryMuscles;

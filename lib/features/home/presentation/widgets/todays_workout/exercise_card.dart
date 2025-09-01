@@ -14,7 +14,7 @@ class ExerciseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final fetchedExercise = ExerciseService().getExerciseById(
       exercise.workoutId,
-    )!;
+    );
     return Container(
       padding: EdgeInsets.all(11),
       height: 66,

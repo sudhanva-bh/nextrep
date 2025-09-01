@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:nextrep/bottom_navigator_controller.dart';
 import 'package:nextrep/core/common/utils/loader.dart';
-import 'package:nextrep/features/home/presentation/pages/home_page.dart';
 import 'package:nextrep/features/welcome/presentation/pages/welcome_page.dart';
 
 class AuthWrapper extends StatelessWidget {
@@ -16,7 +16,7 @@ class AuthWrapper extends StatelessWidget {
           return Loader();
         }
         if (snapshot.hasData) {
-          return HomePage();
+          return BottomNavigatorController();
         } else {
           return WelcomePage();
         }

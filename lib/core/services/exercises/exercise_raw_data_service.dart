@@ -4,8 +4,8 @@ import 'package:nextrep/core/entities/exercise/exercise_model.dart';
 class ExerciseService {
   static final box = Hive.box<Exercise>('exercisesBox');
 
-  Exercise? getExerciseById(String id) {
-    return box.get(id);
+  Exercise getExerciseById(String id) {
+    return box.get(id)!;
   }
 
   List<Exercise> getAllExercises() {

@@ -6,13 +6,13 @@ import 'package:nextrep/core/entities/workout/workout.dart';
 
 class ExerciseModelHiveSync {
   static Future<void> exerciseModelsToHive() async {
-    if (!Hive.isAdapterRegistered(6)) {
+    if (!Hive.isAdapterRegistered(2)) {
       Hive.registerAdapter(ExerciseSetAdapter());
     }
-    if (!Hive.isAdapterRegistered(7)) {
+    if (!Hive.isAdapterRegistered(3)) {
       Hive.registerAdapter(ExerciseSessionAdapter());
     }
-    if (!Hive.isAdapterRegistered(8)) {
+    if (!Hive.isAdapterRegistered(4)) {
       Hive.registerAdapter(WorkoutAdapter());
     }
 

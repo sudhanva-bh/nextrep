@@ -29,7 +29,7 @@ class UserProfile extends HiveObject {
     required this.weight,
     required this.experience,
     required this.gender,
-    this.targetWeight
+    this.targetWeight,
   });
 
   // For syncing with Firebase later
@@ -50,7 +50,7 @@ class UserProfile extends HiveObject {
     double? weight,
     String? experience,
     String? gender,
-    double? targetWeight
+    double? targetWeight,
   }) {
     return UserProfile(
       name: name ?? this.name,

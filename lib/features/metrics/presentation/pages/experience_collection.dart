@@ -1,9 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:nextrep/bottom_navigator_controller.dart';
 import 'package:nextrep/core/constants/file_paths.dart';
 import 'package:nextrep/core/navigation/navigate_to_classes/navigate_with_push.dart';
+import 'package:nextrep/core/services/user_profile/profile_sync_service.dart';
 import 'package:nextrep/core/theme/app_palette.dart';
 import 'package:nextrep/features/auth/presentation/widgets/continue_button.dart';
-import 'package:nextrep/features/home/presentation/pages/home_page.dart';
 import 'package:nextrep/features/metrics/presentation/widget_helpers/experience_screen/experience_tile.dart';
 import 'package:nextrep/core/services/user_profile/user_profile_service.dart';
 
@@ -58,7 +60,10 @@ class _ExperienceCollectionState extends State<ExperienceCollection> {
   Future<void> continueToHomePage() async {
     final cloudService = UserProfileService();
     await cloudService.updateExperience(selectedExperience.name);
-    NavigateWithPush(context, HomePage());
+    await ProfileSyncService().syncProfileOnCommand(
+      FirebaseAuth.instance.currentUser!.uid,
+    );
+    NavigateWithPush(context, BottomNavigatorController());
   }
 
   @override

@@ -41,6 +41,7 @@ class AppPalette {
   ); // Borders/dividers Enabled
   static const Color disabled = Color(0xFF3A3A3A); // Disabled buttons, icons
   static const Color shadow = Color(0xFF000000); // Shadows with opacity
+  static const Color notSelected = Color(0xFFBABABA);
 
   static const Color transparent = Color(0x00000000);
 

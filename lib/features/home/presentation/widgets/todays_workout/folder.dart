@@ -6,8 +6,9 @@ import 'package:nextrep/features/home/presentation/widgets/todays_workout/clippe
 import 'package:nextrep/features/home/presentation/widgets/todays_workout/outline_painter.dart';
 
 class Folder extends StatelessWidget {
-  const Folder({super.key, required this.child});
+  const Folder({super.key, required this.child, this.height = 317});
   final Widget child;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +17,7 @@ class Folder extends StatelessWidget {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Container(
-          height: 317,
+          height: height,
           width: double.infinity,
           decoration: BoxDecoration(
             color: AppPalette.surface.withAlpha(120),
