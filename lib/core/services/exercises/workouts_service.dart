@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:nextrep/core/data/preset_workouts.dart';
 import 'package:nextrep/core/entities/workout/workout.dart';
@@ -62,5 +62,22 @@ class WorkoutsService {
 
   Future<void> deleteAllWorkouts() async {
     await box.clear();
+  }
+
+  ValueListenable<Workout?> workoutListenable(String workoutName) {
+    // Wrap it in a MapValueListenableBuilder so we only listen to that key
+    return box.listenable(keys: [workoutName])
+        .map((_) => box.get(workoutName));
+  }
+}
+
+// Small extension to map a ValueListenable<T> to another type
+extension MapListenable<T> on ValueListenable {
+  ValueListenable<R> map<R>(R Function(T) convert) {
+    final notifier = ValueNotifier<R>(convert(value));
+    addListener(() {
+      notifier.value = convert(value);
+    });
+    return notifier;
   }
 }

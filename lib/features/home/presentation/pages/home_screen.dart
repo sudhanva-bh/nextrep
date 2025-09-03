@@ -38,13 +38,15 @@ class _HomePageState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final workoutsService = WorkoutsService();
+
     final currentUserProfile = userProfileService.getFromLocal()!;
     return SafeArea(
       child: SingleChildScrollView(
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
+              padding: const EdgeInsets.only(top: 18, left: 18, right: 18),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,7 +96,9 @@ class _HomePageState extends ConsumerState<HomeScreen> {
                   ),
                   SizedBox(height: 14),
                   TodaysWorkout(
-                    workout: WorkoutsService().getWorkout("Arms Workout")!,
+                    listenable: workoutsService.workoutListenable(
+                      "Arms Workout",
+                    ),
                   ),
                   SizedBox(height: 14),
                   BmiCard(
@@ -107,7 +111,7 @@ class _HomePageState extends ConsumerState<HomeScreen> {
             ),
             DailyChallenges(),
             Padding(
-              padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
+              padding: const EdgeInsets.only(top: 18, left: 18, right: 18),
               child: FavouriteWorkouts(),
             ),
           ],

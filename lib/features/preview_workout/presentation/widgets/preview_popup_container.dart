@@ -9,8 +9,8 @@ import 'package:nextrep/features/preview_workout/presentation/utils/numbered_lis
 import 'package:nextrep/features/preview_workout/presentation/utils/youtube_embed.dart';
 import 'package:nextrep/features/preview_workout/presentation/widgets/target_muscle_chip.dart';
 
-class PopupContainer extends StatelessWidget {
-  const PopupContainer({
+class PreviewPopupContainer extends StatelessWidget {
+  const PreviewPopupContainer({
     super.key,
     required this.exercise,
     required this.scrollController,
@@ -46,8 +46,8 @@ class PopupContainer extends StatelessWidget {
             children: [
               Center(
                 child: Container(
-                  width: 40,
-                  height: 5,
+                  width: 60,
+                  height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
                     color: Colors.grey[400],
@@ -63,7 +63,7 @@ class PopupContainer extends StatelessWidget {
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.close, size: 26),
                   splashRadius: 22,
-                  color: Colors.grey[600],
+                  color: AppPalette.onSurface,
                 ),
               ),
             ],
@@ -144,6 +144,7 @@ class PopupContainer extends StatelessWidget {
                 child: SizedBox(
                   height: 120, // max visible height
                   child: Scrollbar(
+                    trackVisibility: true,
                     thumbVisibility: true,
                     thickness: 6,
                     radius: const Radius.circular(12),

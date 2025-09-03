@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:nextrep/core/data/preset_workouts.dart';
@@ -62,5 +63,31 @@ class FavouriteWorkoutsService {
 
   Future<void> deleteAllWorkouts() async {
     await box.clear();
+  }
+
+  /// Listen to a specific [Workout] by name.
+  ValueListenable<Workout?> workoutListenable(String workoutName) {
+    return box
+        .listenable(keys: [workoutName])
+        .map(
+          (_) => box.get(workoutName),
+        );
+  }
+
+  /// Returns a [ValueListenable] that rebuilds whenever
+  /// the list of favourite workouts changes.
+  ValueListenable<List<Workout>> getAllWorkoutsListenable() {
+    return box.listenable().map((_) => box.values.toList());
+  }
+}
+
+/// Small extension to transform a [ValueListenable<T>] into another type
+extension MapListenable<T> on ValueListenable<T> {
+  ValueListenable<R> map<R>(R Function(T) convert) {
+    final notifier = ValueNotifier<R>(convert(value));
+    addListener(() {
+      notifier.value = convert(value);
+    });
+    return notifier;
   }
 }

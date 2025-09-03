@@ -4,39 +4,43 @@ import 'package:nextrep/core/services/favourite_workouts/favourite_workouts_serv
 import 'package:nextrep/features/home/presentation/widgets/favourite_workouts/favourite_workouts_tiles.dart';
 
 class FavouriteWorkouts extends StatelessWidget {
-  FavouriteWorkouts({
-    super.key,
-  });
-
-  final List<Workout> favouriteExercises = FavouriteWorkoutsService()
-      .getAllWorkouts();
+  const FavouriteWorkouts({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Favourites",
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        SizedBox(height: 12),
-        Column(
-          children: List.generate(favouriteExercises.length, (n) {
-            return Column(
-              children: [
-                FavouriteWorkoutsTiles(
-                  workout: favouriteExercises[n],
-                ),
-                SizedBox(height: 8),
-              ],
-            );
-          }),
-        ),
-      ],
+    return ValueListenableBuilder<List<Workout>>(
+      valueListenable: FavouriteWorkoutsService().getAllWorkoutsListenable(),
+      builder: (context, favouriteExercises, _) {
+        if (favouriteExercises.isEmpty) {
+          return const SizedBox.shrink(); // or show "No favourites yet"
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Favourites",
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Column(
+              children: List.generate(favouriteExercises.length, (n) {
+                return Column(
+                  children: [
+                    FavouriteWorkoutsTiles(
+                      workout: favouriteExercises[n],
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                );
+              }),
+            ),
+          ],
+        );
+      },
     );
   }
 }

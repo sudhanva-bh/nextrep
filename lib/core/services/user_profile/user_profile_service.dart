@@ -1,4 +1,5 @@
-import 'package:hive/hive.dart';
+import 'package:flutter/foundation.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:nextrep/core/entities/user/user_profile_model.dart';
 
 class UserProfileService {
@@ -94,5 +95,23 @@ class UserProfileService {
       final updatedUser = currentUser.copyWith(gender: newGender);
       await box.put('current_user', updatedUser);
     }
+  }
+
+  /// Get a ValueListenable that emits the current user profile
+  ValueListenable<UserProfile?> getProfileListenable() {
+    return box
+        .listenable(keys: ['current_user'])
+        .mapValue((box) => box.get('current_user'));
+  }
+}
+
+/// Extension to transform a Box listenable into a typed ValueListenable
+extension BoxListenHelper<T> on ValueListenable<Box<T>> {
+  ValueListenable<R> mapValue<R>(R Function(Box<T> box) transformer) {
+    final notifier = ValueNotifier<R>(transformer(value));
+    addListener(() {
+      notifier.value = transformer(value);
+    });
+    return notifier;
   }
 }

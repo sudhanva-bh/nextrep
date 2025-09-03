@@ -79,4 +79,24 @@ class ChallengesService {
   Future<void> deleteAllChallenges() async {
     await box.clear();
   }
+
+  /// Listenable for a single [Challenge] by its title.
+  ValueListenable<Challenge?> challengeListenable(String title) {
+    return box.listenable(keys: [title]).map((_) => box.get(title));
+  }
+
+  /// Listenable for *all* challenges.
+  ValueListenable<List<Challenge>> allChallengesListenable() {
+    return box.listenable().map((_) => getAllChallenges());
+  }
+}
+
+extension MapListenable<T> on ValueListenable<T> {
+  ValueListenable<R> map<R>(R Function(T) convert) {
+    final notifier = ValueNotifier<R>(convert(value));
+    addListener(() {
+      notifier.value = convert(value);
+    });
+    return notifier;
+  }
 }

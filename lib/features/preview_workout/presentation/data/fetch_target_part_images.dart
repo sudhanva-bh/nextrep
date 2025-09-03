@@ -11,7 +11,7 @@ class MuscleApiService {
   final Box<Uint8List> cacheBox = Hive.box<Uint8List>('muscle_images');
 
   String colorToRgbString(Color color) {
-    return '${color.red},${color.green},${color.blue}';
+    return '${(color.r * 255.0).round() & 0xff},${(color.g * 255.0).round() & 0xff},${(color.b * 255.0).round() & 0xff}';
   }
 
   static const Map<String, String> targetMap = {

@@ -69,7 +69,7 @@ class _YouTubeEmbedState extends State<YouTubeEmbed> {
           border: Border.all(color: AppPalette.outlineEnabled, width: 1),
           boxShadow: WidgetProperties.dropShadow,
         ),
-        height: 300,
+        height: 200,
         child: Center(
           child: CircularProgressIndicator(color: AppPalette.primary),
         ),

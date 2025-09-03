@@ -16,7 +16,7 @@ class ExerciseSessionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Ink(
       height: 110,
       decoration: BoxDecoration(
         color: AppPalette.surface,
@@ -75,11 +75,6 @@ class ExerciseSessionCard extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-            IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.edit),
-              color: AppPalette.onSurface,
             ),
           ],
         ),

@@ -48,4 +48,16 @@ class Workout extends HiveObject {
 
   factory Workout.fromJson(String source) =>
       Workout.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  Workout copyWith({
+    String? workoutName,
+    List<ExerciseSession>? exercises,
+    String? imagePath,
+  }) {
+    return Workout(
+      workoutName: workoutName ?? this.workoutName,
+      exercises: exercises ?? this.exercises,
+      imagePath: imagePath ?? this.imagePath,
+    );
+  }
 }
