@@ -35,4 +35,14 @@ class ExerciseSet extends HiveObject {
   String toJson() => json.encode(toMap());
 
   factory ExerciseSet.fromJson(String source) => ExerciseSet.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  ExerciseSet copyWith({
+    int? reps,
+    double? weight,
+  }) {
+    return ExerciseSet(
+      reps: reps ?? this.reps,
+      weight: weight ?? this.weight,
+    );
+  }
 }

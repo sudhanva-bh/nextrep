@@ -117,6 +117,7 @@ class _PreviewWorkoutState extends State<PreviewWorkout> {
                               MaterialPageRoute(
                                 builder: (context) => EditWorkout(
                                   workout: workout,
+                                  exercises: exercises,
                                 ),
                               ),
                             );
@@ -172,9 +173,7 @@ class _PreviewWorkoutState extends State<PreviewWorkout> {
                           onTap: () {
                             BottomWorkoutPreviewPopup.showPopup(
                               context,
-                              workoutsService.getExerciseById(
-                                workout.exercises[i].workoutId,
-                              ),
+                              exercises[i],
                             );
                           },
                           child: ExerciseSessionCard(

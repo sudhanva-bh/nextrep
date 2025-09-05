@@ -60,4 +60,13 @@ class Workout extends HiveObject {
       imagePath: imagePath ?? this.imagePath,
     );
   }
+
+  @override
+  String toString() {
+    final exerciseIds = exercises.map((e) => e.workoutId).join(', ');
+
+    return 'Workout(workoutName: $workoutName, '
+        'exercises: [$exerciseIds], '
+        'imagePath: $imagePath)';
+  }
 }

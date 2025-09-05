@@ -18,21 +18,17 @@ class YouTubeEmbed extends StatefulWidget {
 
 class _YouTubeEmbedState extends State<YouTubeEmbed> {
   YoutubePlayerController? _controller;
-  bool _isLoading = true;
+  bool _isLoading = false;
   String? _error;
 
-  late String query;
+  Future<void> _searchAndPlay() async {
+    setState(() {
+      _isLoading = true;
+    });
 
-  @override
-  void initState() {
-    super.initState();
-    query = "${widget.exercise.name} Tutorial";
-    _searchAndPlay(query);
-  }
-
-  Future<void> _searchAndPlay(String query) async {
     try {
       final apiKey = dotenv.env['YOUTUBE_API_KEY'];
+      final query = "${widget.exercise.name} Tutorial";
       final url =
           "https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=1&q=$query&key=$apiKey";
 
@@ -47,7 +43,7 @@ class _YouTubeEmbedState extends State<YouTubeEmbed> {
       setState(() {
         _controller = YoutubePlayerController(
           initialVideoId: videoId,
-          flags: const YoutubePlayerFlags(autoPlay: false),
+          flags: const YoutubePlayerFlags(autoPlay: true),
         );
         _isLoading = false;
       });
@@ -61,6 +57,7 @@ class _YouTubeEmbedState extends State<YouTubeEmbed> {
 
   @override
   Widget build(BuildContext context) {
+    // 1. Still loading video
     if (_isLoading) {
       return Container(
         decoration: BoxDecoration(
@@ -75,12 +72,15 @@ class _YouTubeEmbedState extends State<YouTubeEmbed> {
         ),
       );
     }
+
+    // 2. Error state
     if (_error != null) {
       return Container(
         decoration: BoxDecoration(
           color: AppPalette.error,
           borderRadius: BorderRadius.circular(16),
         ),
+        padding: const EdgeInsets.all(12),
         child: Text(
           "Error: $_error",
           style: const TextStyle(color: AppPalette.onError),
@@ -88,33 +88,57 @@ class _YouTubeEmbedState extends State<YouTubeEmbed> {
       );
     }
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
+    // 3. After video is loaded, show the player
+    if (_controller != null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppPalette.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppPalette.outlineEnabled, width: 1),
+            boxShadow: WidgetProperties.dropShadow,
+          ),
+          child: YoutubePlayer(
+            controller: _controller!,
+            showVideoProgressIndicator: true,
+            progressIndicatorColor: AppPalette.primary,
+            bottomActions: [
+              CurrentPosition(),
+              ProgressBar(
+                isExpanded: true,
+                colors: ProgressBarColors(
+                  playedColor: AppPalette.primary,
+                  handleColor: AppPalette.inversePrimary,
+                  bufferedColor: AppPalette.lightSurface,
+                  backgroundColor: AppPalette.outline,
+                ),
+              ),
+              RemainingDuration(),
+              const SizedBox(height: 5),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // 4. Initial state: just a play button
+    return GestureDetector(
+      onTap: _searchAndPlay,
       child: Container(
+        height: 200,
         decoration: BoxDecoration(
           color: AppPalette.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppPalette.outlineEnabled, width: 1),
           boxShadow: WidgetProperties.dropShadow,
         ),
-        child: YoutubePlayer(
-          controller: _controller!,
-          showVideoProgressIndicator: true,
-          progressIndicatorColor: AppPalette.primary,
-          bottomActions: [
-            CurrentPosition(),
-            ProgressBar(
-              isExpanded: true,
-              colors: ProgressBarColors(
-                playedColor: AppPalette.primary,
-                handleColor: AppPalette.inversePrimary,
-                bufferedColor: AppPalette.lightSurface,
-                backgroundColor: AppPalette.outline,
-              ),
-            ),
-            RemainingDuration(),
-            SizedBox(height: 5),
-          ],
+        child: const Center(
+          child: Icon(
+            Icons.play_circle_fill,
+            color: AppPalette.primary,
+            size: 64,
+          ),
         ),
       ),
     );
