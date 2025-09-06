@@ -10,4 +10,13 @@ class WidgetProperties {
       offset: Offset(0, 6),
     ),
   ];
+
+  static final subtleDropShadow = [
+    BoxShadow(
+      color: AppPalette.shadow.withAlpha(100),
+      spreadRadius: 0.5,
+      blurRadius: 3,
+      offset: Offset(0, 3),
+    ),
+  ];
 }

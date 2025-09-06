@@ -14,6 +14,8 @@ class EditTile extends StatefulWidget {
     required this.exercise,
     required this.index,
     required this.onUpdate,
+    required this.onDeleteSet,
+    required this.onAdd,
     required this.setStateFunction,
   });
 
@@ -21,7 +23,9 @@ class EditTile extends StatefulWidget {
   final Exercise exercise;
   final int index;
   final Function(int setIndex, int reps, double weight) onUpdate;
+  final Function(int setIndex) onDeleteSet;
   final Function setStateFunction;
+  final Function onAdd;
 
   @override
   State<EditTile> createState() => _EditTileState();
@@ -145,11 +149,11 @@ class _EditTileState extends State<EditTile>
             sizeFactor: _animation,
             axisAlignment: -1.0,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Column(
                 children: [
                   const SizedBox(height: 8),
-                  ListView.separated(
+                  ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: widget.exerciseSession.sets.length,
@@ -158,9 +162,24 @@ class _EditTileState extends State<EditTile>
                         exerciseSet: widget.exerciseSession.sets[index],
                         onUpdate: (reps, weight) =>
                             widget.onUpdate(index, reps, weight),
+                        onDelete: () => widget.onDeleteSet(index),
                       );
                     },
-                    separatorBuilder: (context, _) => const SizedBox(height: 6),
+                  ),
+                  SizedBox(height: 4),
+                  TextButton(
+                    onPressed: () => widget.onAdd(),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Text(
+                        "+ Add Exercise",
+                        style: TextStyle(
+                          color: AppPalette.primary,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),

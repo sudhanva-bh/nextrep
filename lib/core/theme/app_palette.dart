@@ -16,7 +16,12 @@ class AppPalette {
   static const Color lighterSurface = Color(0xFF6B6B6B);
   static const Color onSurface = Color(0xFFDADADA); // Text on surface
 
-  static const Color error = Color(0xFFCF6679); // Material dark red
+  static const Color error = Color.fromARGB(
+    255,
+    255,
+    14,
+    58,
+  ); // Material dark red
   static const Color onError = Color(0xFFFFFFFF);
 
   static const Color hintText = Colors.white70;

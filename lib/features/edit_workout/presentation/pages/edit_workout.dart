@@ -66,6 +66,51 @@ class _EditWorkoutState extends State<EditWorkout> {
     _workout = _workout.copyWith(exercises: updatedSessions);
   }
 
+  void deleteSet(int exerciseSessionIndex, int setIndex) {
+    setState(() {
+      // 1. Get a mutable copy of the exercise sessions
+      final updatedSessions = List<ExerciseSession>.from(_workout.exercises);
+      final sessionToUpdate = updatedSessions[exerciseSessionIndex];
+
+      // 2. Get a mutable copy of the sets
+      final updatedSets = List<ExerciseSet>.from(sessionToUpdate.sets);
+
+      // 3. Remove the set at the specified index
+      updatedSets.removeAt(setIndex);
+
+      // 4. Update the session with the modified sets list
+      updatedSessions[exerciseSessionIndex] = sessionToUpdate.copyWith(
+        sets: updatedSets,
+      );
+
+      // 5. Update the workout state
+      _workout = _workout.copyWith(exercises: updatedSessions);
+    });
+  }
+
+  void addSet(int exerciseSessionIndex) {
+    setState(() {
+      // 1. Get a mutable copy of the exercise sessions
+      final updatedSessions = List<ExerciseSession>.from(_workout.exercises);
+      final sessionToUpdate = updatedSessions[exerciseSessionIndex];
+
+      // 2. Get a mutable copy of the sets from the target session
+      final updatedSets = List<ExerciseSet>.from(sessionToUpdate.sets);
+
+      // 3. Create a new default set and add it to the end of the list
+      final newSet = ExerciseSet(reps: 12, weight: 10.0);
+      updatedSets.add(newSet);
+
+      // 4. Update the specific session with the new, longer sets list
+      updatedSessions[exerciseSessionIndex] = sessionToUpdate.copyWith(
+        sets: updatedSets,
+      );
+
+      // 5. Update the workout state with the modified sessions list
+      _workout = _workout.copyWith(exercises: updatedSessions);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,7 +118,19 @@ class _EditWorkoutState extends State<EditWorkout> {
         mainAxisSize: MainAxisSize.min,
         children: [
           FloatingActionButton(
+            heroTag: "refresh",
+            tooltip: "Refresh",
+            onPressed: () {
+              setState(() {
+                _workout = widget.workout.copyWith();
+              });
+            },
+            child: const Icon(Icons.restart_alt),
+          ),
+          const SizedBox(width: 12),
+          FloatingActionButton(
             heroTag: "done",
+            tooltip: "Edit",
             onPressed: () async {
               FocusScope.of(context).unfocus();
               await _workoutsService.updateWorkout(_workout);
@@ -83,9 +140,10 @@ class _EditWorkoutState extends State<EditWorkout> {
             },
             child: const Icon(Icons.done),
           ),
-          const SizedBox(width: 12), // spacing
+          const SizedBox(width: 12),
           FloatingActionButton(
             heroTag: "cancel",
+            tooltip: "Cancel",
             onPressed: () => Navigator.pop(context),
             child: const Icon(Icons.clear),
           ),
@@ -120,6 +178,8 @@ class _EditWorkoutState extends State<EditWorkout> {
               index: i,
               onUpdate: (setIndex, reps, weight) =>
                   updateSet(i, setIndex, reps: reps, weight: weight),
+              onDeleteSet: (setIndex) => deleteSet(i, setIndex),
+              onAdd: () => addSet(i),
               setStateFunction: setStateWhenClosed,
             ),
         ],
