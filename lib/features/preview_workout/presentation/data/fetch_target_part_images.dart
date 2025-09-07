@@ -10,10 +10,9 @@ class MuscleApiService {
       'https://muscle-localised-api.netlify.app/.netlify/functions/';
   final Box<Uint8List> cacheBox = Hive.box<Uint8List>('muscle_images');
 
-  String colorToRgbString(Color color) {
-    return '${(color.r * 255.0).round() & 0xff},${(color.g * 255.0).round() & 0xff},${(color.b * 255.0).round() & 0xff}';
-  }
-
+  // --- Maps and color converter (Unchanged) ---
+  String colorToRgbString(Color color) =>
+      '${color.red},${color.green},${color.blue}';
   static const Map<String, String> targetMap = {
     "abductors": "abductors",
     "abs": "abs",
@@ -79,98 +78,181 @@ class MuscleApiService {
     "wrists": "hands",
   };
 
-  Future<Image> getMuscleImageWidget(
-    Exercise exercise, {
-    bool transparent = false,
+  // --- PRIVATE HELPER FUNCTIONS (Unchanged section) ---
+  Future<Image> _fetchAndCacheImage({
+    required List<String> mappedPrimary,
+    required List<String> mappedSecondary,
+    required bool transparent,
+    String? cacheId,
   }) async {
-    // Map primary muscle
-    String mappedPrimary =
-        targetMap[exercise.targetMuscle] ?? exercise.targetMuscle;
-
-    // Map secondary muscles
-    List<String> mappedSecondary = exercise.secondaryMuscles
-        .map((m) => secondaryMap[m] ?? m)
-        .toList();
-
-    // Remove duplicates that are same as primary
-    mappedSecondary.removeWhere((m) => m == mappedPrimary);
-
-    // Cache key
+    mappedSecondary.removeWhere((m) => mappedPrimary.contains(m));
+    mappedPrimary.sort();
+    mappedSecondary.sort();
+    final idPart = cacheId ?? 'lists';
     String cacheKey =
-        'muscle_image_${exercise.id}_${mappedPrimary}_${mappedSecondary.join("_")}_transparent_${transparent ? 1 : 0}';
-
-    // Check Hive cache
+        'muscle_image_${idPart}_${mappedPrimary.join("_")}_${mappedSecondary.join("_")}_transparent_${transparent ? 1 : 0}';
+    // await cacheBox.clear();
     if (cacheBox.containsKey(cacheKey)) {
       final cachedBytes = cacheBox.get(cacheKey)!;
       return Image.memory(cachedBytes, fit: BoxFit.contain);
     }
-
-    // Colors in R,G,B format for PHP
-    String primaryColor = colorToRgbString(AppPalette.primary);
-    String secondaryColor = colorToRgbString(const Color(0xFFFFC977));
-
-    // Build API URL
-    final uri = Uri.parse(
-      '${baseUrl}muscle-image'
-      '?primary_muscles=${Uri.encodeComponent(mappedPrimary)}'
-      '&secondary_muscles=${Uri.encodeComponent(mappedSecondary.join(","))}'
-      '&primary_color=$primaryColor'
-      '&secondary_color=$secondaryColor'
-      '&transparent=${transparent ? 1 : 0}',
+    String primaryColor = colorToRgbString(
+      const Color.fromARGB(255, 255, 111, 0),
     );
-
-    // HTTP GET
+    String secondaryColor = colorToRgbString(
+      const Color.fromARGB(255, 255, 213, 0),
+    );
+    final uri = Uri.parse(
+      '${baseUrl}muscle-image?primary_muscles=${Uri.encodeComponent(mappedPrimary.join(","))}&secondary_muscles=${Uri.encodeComponent(mappedSecondary.join(","))}&primary_color=$primaryColor&secondary_color=$secondaryColor&transparent=${transparent ? 1 : 0}',
+    );
+    print(uri);
     final response = await http.get(
       uri,
-      headers: {
-        'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36',
-      },
+      headers: {'User-Agent': 'Mozilla/5.0'},
     );
-
-    if (response.statusCode == 200) {
-      // Check if content is an image
-      if (response.headers['content-type']?.contains('image') == true) {
-        final bytes = response.bodyBytes;
-        await cacheBox.put(cacheKey, bytes);
-        return Image.memory(bytes, fit: BoxFit.contain);
-      } else {
-        throw Exception('API did not return an image: ${response.body}');
-      }
+    if (response.statusCode == 200 &&
+        response.headers['content-type']?.contains('image') == true) {
+      final bytes = response.bodyBytes;
+      await cacheBox.put(cacheKey, bytes);
+      return Image.memory(bytes, fit: BoxFit.contain);
     } else {
       throw Exception(
-        'Failed to fetch muscle image: ${response.statusCode} ${response.reasonPhrase}',
+        'Failed to fetch or process muscle image: ${response.statusCode}',
       );
     }
   }
 
-  Widget getMuscleImageWidgetBuilder(
+  // --- NEW PRIVATE HELPER WIDGET ---
+  /// Wraps an image in a GestureDetector to show it in a dialog on long press.
+  Widget _buildInteractiveImagePopup(BuildContext context, Image image) {
+    return GestureDetector(
+      onLongPress: () {
+        showDialog(
+          context: context,
+          builder: (ctx) => Dialog(
+            backgroundColor: AppPalette.transparent,
+            elevation: 0,
+            insetPadding: const EdgeInsets.all(16),
+            // InteractiveViewer allows pinch-to-zoom and panning.
+            child: InteractiveViewer(
+              child: image,
+            ),
+          ),
+        );
+      },
+      child: image,
+    );
+  }
+
+  // --- PUBLIC FUNCTIONS (Unchanged section) ---
+  Future<Image> getMuscleImageForExercise(
+    Exercise exercise, {
+    bool transparent = false,
+  }) async {
+    final mappedPrimary = [
+      targetMap[exercise.targetMuscle] ?? exercise.targetMuscle,
+    ];
+    final mappedSecondary = exercise.secondaryMuscles
+        .map((m) => secondaryMap[m] ?? m)
+        .toSet()
+        .toList();
+    return await _fetchAndCacheImage(
+      mappedPrimary: mappedPrimary,
+      mappedSecondary: mappedSecondary,
+      transparent: transparent,
+      cacheId: exercise.id,
+    );
+  }
+
+  Future<Image> getMuscleImageForLists({
+    required List<String> primaryMuscles,
+    required List<String> secondaryMuscles,
+    bool transparent = false,
+  }) async {
+    final mappedPrimary = primaryMuscles
+        .map((m) => targetMap[m.toLowerCase()] ?? m)
+        .toSet()
+        .toList();
+    final mappedSecondary = secondaryMuscles
+        .map((m) => secondaryMap[m.toLowerCase()] ?? m)
+        .toSet()
+        .toList();
+    return await _fetchAndCacheImage(
+      mappedPrimary: mappedPrimary,
+      mappedSecondary: mappedSecondary,
+      transparent: transparent,
+    );
+  }
+
+  // --- MODIFIED PUBLIC BUILDER WIDGETS ---
+
+  /// Builds a styled container with a FutureBuilder for an Exercise object.
+  /// On long press, the image is shown in a zoomable dialog.
+  Widget getMuscleImageBuilderForExercise(
     Exercise exercise, {
     bool transparent = true,
+    double height = 120,
+    double width = 120,
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: AppPalette.surface,
+        color: AppPalette.background,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppPalette.outlineEnabled),
       ),
-      width: 120,
-      height: 120,
+      width: height,
+      height: width,
       child: FutureBuilder<Image>(
-        future: getMuscleImageWidget(exercise, transparent: transparent),
+        future: getMuscleImageForExercise(exercise, transparent: transparent),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return SizedBox(
-              height: double.infinity,
-              width: double.infinity,
-              child: const Center(child: CircularProgressIndicator()),
-            );
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (snapshot.hasData) {
-            return snapshot.data!;
+            // MODIFIED: Use the helper to make the image interactive
+            return _buildInteractiveImagePopup(context, snapshot.data!);
           } else {
-            return const SizedBox.shrink(); // fallback
+            return const SizedBox.shrink();
+          }
+        },
+      ),
+    );
+  }
+
+  /// Builds a styled container with a FutureBuilder for lists of muscle strings.
+  /// On long press, the image is shown in a zoomable dialog.
+  Widget getMuscleImageBuilderForLists({
+    required List<String> primaryMuscles,
+    required List<String> secondaryMuscles,
+    bool transparent = true,
+    double height = 120,
+    double width = 120,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppPalette.background,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppPalette.outlineEnabled),
+      ),
+      width: width,
+      height: height,
+      child: FutureBuilder<Image>(
+        future: getMuscleImageForLists(
+          primaryMuscles: primaryMuscles,
+          secondaryMuscles: secondaryMuscles,
+          transparent: transparent,
+        ),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (snapshot.hasData) {
+            // MODIFIED: Use the helper to make the image interactive
+            return _buildInteractiveImagePopup(context, snapshot.data!);
+          } else {
+            return const SizedBox.shrink();
           }
         },
       ),

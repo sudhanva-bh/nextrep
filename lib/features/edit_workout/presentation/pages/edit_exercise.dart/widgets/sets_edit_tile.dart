@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nextrep/core/constants/widget_properties.dart';
 import 'package:nextrep/core/entities/workout/exercise_set.dart';
 import 'package:nextrep/core/theme/app_palette.dart';
-import 'package:nextrep/features/edit_workout/presentation/widgets/number_input_card.dart';
+import 'package:nextrep/features/edit_workout/presentation/pages/edit_exercise.dart/widgets/number_input_card.dart';
 
 class SetsEditTile extends StatefulWidget {
   const SetsEditTile({

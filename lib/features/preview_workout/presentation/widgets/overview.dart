@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:nextrep/core/constants/file_paths.dart';
 import 'package:nextrep/core/constants/widget_properties.dart';
 import 'package:nextrep/core/theme/app_palette.dart';
+import 'package:nextrep/features/preview_workout/presentation/data/fetch_target_part_images.dart';
+import 'package:nextrep/features/preview_workout/presentation/utils/bottom_workout_preview_popup.dart';
 
 class Overview extends StatelessWidget {
   const Overview({
@@ -9,11 +11,12 @@ class Overview extends StatelessWidget {
     required this.length,
     required this.volume,
     required this.workoutsNames,
-    required this.muscleGroups,
+    required this.primaryMuscleGroups, required this.secondaryMuscleGroups,
   });
 
   final int length;
-  final String workoutsNames, muscleGroups, volume;
+  final String workoutsNames, volume;
+  final List<String> primaryMuscleGroups, secondaryMuscleGroups;
 
   @override
   Widget build(BuildContext context) {
@@ -28,16 +31,9 @@ class Overview extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Row(
           children: [
-            Container(
-              height: 114,
-              width: 114,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage(FilePaths.mainLogo),
-                ),
-                borderRadius: BorderRadius.circular(12),
-                color: AppPalette.lighterSurface,
-              ),
+            MuscleApiService().getMuscleImageBuilderForLists(
+              primaryMuscles: primaryMuscleGroups,
+              secondaryMuscles: secondaryMuscleGroups,
             ),
             SizedBox(width: 16),
             Expanded(
@@ -89,7 +85,7 @@ class Overview extends StatelessWidget {
                   ),
                   SizedBox(height: 2),
                   Text(
-                    muscleGroups,
+                    primaryMuscleGroups.join(", "),
                     style: TextStyle(
                       fontSize: 11,
                       color: AppPalette.lighterSurface,

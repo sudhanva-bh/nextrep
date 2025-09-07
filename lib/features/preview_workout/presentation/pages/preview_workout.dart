@@ -6,15 +6,16 @@ import 'package:nextrep/core/entities/workout/workout.dart';
 import 'package:nextrep/core/navigation/navigate_to_classes/navigate_run_function.dart';
 import 'package:nextrep/core/services/exercises/exercise_raw_data_service.dart';
 import 'package:nextrep/core/theme/app_palette.dart';
-import 'package:nextrep/features/edit_workout/presentation/pages/edit_workout.dart';
+import 'package:nextrep/features/edit_workout/presentation/pages/edit_exercise.dart/edit_workout.dart';
 import 'package:nextrep/features/preview_workout/presentation/utils/bottom_workout_preview_popup.dart';
 import 'package:nextrep/features/preview_workout/presentation/widgets/exercise_session_card.dart';
 import 'package:nextrep/features/preview_workout/presentation/widgets/overview.dart';
+import 'package:nextrep/features/start_workout/presentation/pages/start_workout.dart';
 
 class PreviewWorkout extends StatefulWidget {
-  final ValueListenable<Workout?> listenable;
+  final ValueListenable<Workout?> workoutListenable;
 
-  const PreviewWorkout({super.key, required this.listenable});
+  const PreviewWorkout({super.key, required this.workoutListenable});
 
   @override
   State<PreviewWorkout> createState() => _PreviewWorkoutState();
@@ -33,13 +34,23 @@ class _PreviewWorkoutState extends State<PreviewWorkout> {
     return exercises.map((e) => e.name).join(', ');
   }
 
-  String _getMuscleGroups(List<Exercise> exercises) {
+  List<String> _getPrimaryMuscleGroups(List<Exercise> exercises) {
     return exercises
         .map(
           (e) => e.targetMuscle[0].toUpperCase() + e.targetMuscle.substring(1),
         )
         .toSet()
-        .join(', ');
+        .toList();
+  }
+
+  List<String> _getSecondaryMuscleGroups(List<Exercise> exercises) {
+    return exercises
+        .expand(
+          (e) => e.secondaryMuscles,
+        ) // flatten List<List<String>> → List<String>
+        .map((m) => m[0].toUpperCase() + m.substring(1)) // capitalize
+        .toSet() // unique
+        .toList();
   }
 
   String _getVolume(Workout workout) {
@@ -53,7 +64,7 @@ class _PreviewWorkoutState extends State<PreviewWorkout> {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<Workout?>(
-      valueListenable: widget.listenable,
+      valueListenable: widget.workoutListenable,
       builder: (context, workout, _) {
         if (workout == null) {
           return const Center(child: Text("No workout found"));
@@ -63,7 +74,17 @@ class _PreviewWorkoutState extends State<PreviewWorkout> {
 
         return Scaffold(
           floatingActionButton: FloatingActionButton.extended(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => StartWorkout(
+                    workout: workout,
+                    startTime: DateTime.now(),
+                  ),
+                ),
+              );
+            },
             backgroundColor: AppPalette.secondary,
             label: const Row(
               mainAxisSize: MainAxisSize.min,
@@ -111,8 +132,8 @@ class _PreviewWorkoutState extends State<PreviewWorkout> {
                       Align(
                         alignment: Alignment.bottomRight,
                         child: IconButton(
-                          onPressed: () async {
-                            await Navigator.push<Workout>(
+                          onPressed: () {
+                            Navigator.push<Workout>(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => EditWorkout(
@@ -131,7 +152,7 @@ class _PreviewWorkoutState extends State<PreviewWorkout> {
                   background: Container(
                     decoration: BoxDecoration(
                       image: DecorationImage(
-                        image: AssetImage(WorkoutImagePaths.arms),
+                        image: AssetImage(workout.imagePath),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -165,7 +186,10 @@ class _PreviewWorkoutState extends State<PreviewWorkout> {
                         length: workout.exercises.length,
                         volume: _getVolume(workout),
                         workoutsNames: _getWorkoutsNames(exercises),
-                        muscleGroups: _getMuscleGroups(exercises),
+                        primaryMuscleGroups: _getPrimaryMuscleGroups(exercises),
+                        secondaryMuscleGroups: _getSecondaryMuscleGroups(
+                          exercises,
+                        ),
                       ),
                       const SizedBox(height: 20),
                       for (int i = 0; i < workout.exercises.length; i++) ...[

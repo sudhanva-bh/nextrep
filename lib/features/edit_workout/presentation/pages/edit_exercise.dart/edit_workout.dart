@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:nextrep/core/common/utils/show_snackbar.dart';
 import 'package:nextrep/core/entities/exercise/exercise_model.dart';
 import 'package:nextrep/core/entities/workout/exercise_session.dart';
 import 'package:nextrep/core/entities/workout/exercise_set.dart';
 import 'package:nextrep/core/entities/workout/workout.dart';
+import 'package:nextrep/core/services/exercises/exercise_raw_data_service.dart';
 import 'package:nextrep/core/services/exercises/workouts_service.dart';
-import 'package:nextrep/features/edit_workout/presentation/widgets/edit_tile.dart';
+import 'package:nextrep/core/theme/app_palette.dart';
+import 'package:nextrep/features/edit_workout/presentation/pages/add_exercise/add_exercise.dart';
+import 'package:nextrep/features/edit_workout/presentation/pages/edit_exercise.dart/widgets/edit_tile.dart';
 
 class EditWorkout extends StatefulWidget {
   const EditWorkout({
@@ -24,17 +28,48 @@ class _EditWorkoutState extends State<EditWorkout> {
   late List<Exercise> _exercises; // local copy so we can reorder
   late Workout _workout;
   late WorkoutsService _workoutsService;
+  late ExerciseService _exerciseService;
 
   @override
   void initState() {
     super.initState();
     _workoutsService = WorkoutsService();
+    _exerciseService = ExerciseService();
     _exercises = List.from(widget.exercises); // clone list
     _workout = widget.workout.copyWith();
   }
 
   void setStateWhenClosed() {
     setState(() {});
+  }
+
+  void addExercise(String workoutId) {
+    final isDuplicate = _workout.exercises.any(
+      (session) => session.workoutId == workoutId,
+    );
+
+    if (isDuplicate) {
+      showSnackBar(context, 'This exercise is already in your workout.');
+      return;
+    }
+
+    final exerciseToAdd = _exerciseService.getExerciseById(workoutId);
+
+    setState(() {
+      final newExerciseSession = ExerciseSession(
+        workoutId: workoutId,
+        sets: [ExerciseSet(reps: 12, weight: 10)],
+      );
+
+      final modifiedExerciseSessions = List<ExerciseSession>.from(
+        _workout.exercises,
+      );
+      modifiedExerciseSessions.add(newExerciseSession);
+
+      _exercises.add(exerciseToAdd);
+
+      _workout = _workout.copyWith(exercises: modifiedExerciseSessions);
+    });
   }
 
   void updateSet(
@@ -111,6 +146,25 @@ class _EditWorkoutState extends State<EditWorkout> {
     });
   }
 
+  void deleteExercise(int index) {
+    setState(() {
+      final String exerciseName = _exercises[index].name;
+
+      // 1. Remove the exercise from the local list of Exercise models
+      _exercises.removeAt(index);
+
+      // 2. Remove the exercise session from the workout's list
+      final updatedSessions = List<ExerciseSession>.from(_workout.exercises);
+      updatedSessions.removeAt(index);
+
+      // 3. Update the workout state
+      _workout = _workout.copyWith(exercises: updatedSessions);
+
+      // 4. Show a confirmation snackbar
+      showSnackBar(context, '$exerciseName removed.');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,11 +172,15 @@ class _EditWorkoutState extends State<EditWorkout> {
         mainAxisSize: MainAxisSize.min,
         children: [
           FloatingActionButton(
-            heroTag: "refresh",
-            tooltip: "Refresh",
+            heroTag: "reset",
+            tooltip: "Reset",
             onPressed: () {
               setState(() {
+                // 1. Reset the workout data (sets, reps, weights)
                 _workout = widget.workout.copyWith();
+
+                // 2. Reset the list of exercises itself
+                _exercises = List.from(widget.exercises);
               });
             },
             child: const Icon(Icons.restart_alt),
@@ -161,26 +219,57 @@ class _EditWorkoutState extends State<EditWorkout> {
       ),
       body: ReorderableListView(
         buildDefaultDragHandles: false, // Prevents gesture conflicts
-        footer: const Card(
-          margin: EdgeInsets.all(8),
-          child: Padding(
-            padding: EdgeInsets.all(16),
-            child: Text("Test Card in Footer"),
+        footer: Center(
+          child: TextButton(
+            onPressed: () => BottomAddExercisePopup.showPopup(
+              context,
+              (workoutId) => addExercise(workoutId),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Text(
+                "+ Add Exercise",
+                style: TextStyle(
+                  color: AppPalette.primary,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
+            ),
           ),
         ),
         children: [
+          // ✨ Wrapped the EditTile with a Dismissible
           for (int i = 0; i < _exercises.length; i++)
-            EditTile(
-              // The key is essential for ReorderableListView to work correctly
+            Dismissible(
+              // The key is essential for both Dismissible and ReorderableListView
               key: ValueKey(_exercises[i].id),
-              exerciseSession: _workout.exercises[i],
-              exercise: _exercises[i],
-              index: i,
-              onUpdate: (setIndex, reps, weight) =>
-                  updateSet(i, setIndex, reps: reps, weight: weight),
-              onDeleteSet: (setIndex) => deleteSet(i, setIndex),
-              onAdd: () => addSet(i),
-              setStateFunction: setStateWhenClosed,
+              direction: DismissDirection.endToStart,
+              onDismissed: (direction) {
+                deleteExercise(i);
+              },
+              background: Container(
+                decoration: BoxDecoration(
+                  color: AppPalette.error,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                // Match the margin of EditTile for consistent appearance
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: const Icon(Icons.delete, color: AppPalette.onError),
+              ),
+              child: EditTile(
+                // Note: The key is now on the parent Dismissible for the ReorderableListView
+                exerciseSession: _workout.exercises[i],
+                exercise: _exercises[i],
+                index: i,
+                onUpdate: (setIndex, reps, weight) =>
+                    updateSet(i, setIndex, reps: reps, weight: weight),
+                onDeleteSet: (setIndex) => deleteSet(i, setIndex),
+                onAdd: () => addSet(i),
+                setStateFunction: setStateWhenClosed,
+              ),
             ),
         ],
         onReorder: (oldIndex, newIndex) {

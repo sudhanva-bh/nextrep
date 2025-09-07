@@ -5,6 +5,7 @@ import 'package:nextrep/core/common/utils/show_snackbar.dart';
 import 'package:nextrep/core/constants/widget_properties.dart';
 import 'package:nextrep/core/navigation/navigate_to_classes/navigate_with_fade.dart';
 import 'package:nextrep/core/services/exercises/workouts_service.dart';
+import 'package:nextrep/core/services/user_profile/profile_sync_service.dart';
 import 'package:nextrep/core/theme/app_palette.dart';
 import 'package:nextrep/features/auth/presentation/auth_controller.dart';
 import 'package:nextrep/features/home/presentation/widgets/bmi/bmi_card.dart';

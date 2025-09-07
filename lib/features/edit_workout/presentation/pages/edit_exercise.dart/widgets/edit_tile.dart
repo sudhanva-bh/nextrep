@@ -4,7 +4,7 @@ import 'package:nextrep/core/entities/exercise/exercise_model.dart';
 import 'package:nextrep/core/entities/workout/exercise_session.dart';
 import 'package:nextrep/core/navigation/navigate_to_classes/navigate_run_function.dart';
 import 'package:nextrep/core/theme/app_palette.dart';
-import 'package:nextrep/features/edit_workout/presentation/widgets/sets_edit_tile.dart';
+import 'package:nextrep/features/edit_workout/presentation/pages/edit_exercise.dart/widgets/sets_edit_tile.dart';
 import 'package:nextrep/features/preview_workout/presentation/utils/bottom_workout_preview_popup.dart';
 
 class EditTile extends StatefulWidget {
@@ -70,7 +70,7 @@ class _EditTileState extends State<EditTile>
   Widget build(BuildContext context) {
     return Container(
       key: ValueKey(widget.exercise.id),
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
         color: AppPalette.surface,
         borderRadius: BorderRadius.circular(12),
@@ -172,7 +172,7 @@ class _EditTileState extends State<EditTile>
                     child: Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: Text(
-                        "+ Add Exercise",
+                        "+ Add Set",
                         style: TextStyle(
                           color: AppPalette.primary,
                           fontWeight: FontWeight.w600,

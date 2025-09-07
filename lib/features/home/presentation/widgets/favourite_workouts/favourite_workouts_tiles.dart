@@ -15,7 +15,7 @@ class FavouriteWorkoutsTiles extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return NavigateWithInkwell(
-      destination: PreviewWorkout(listenable: FavouriteWorkoutsService().workoutListenable(workout.workoutName)),
+      destination: PreviewWorkout(workoutListenable: FavouriteWorkoutsService().workoutListenable(workout.workoutName)),
       child: Container(
         width: double.infinity,
         height: 176,

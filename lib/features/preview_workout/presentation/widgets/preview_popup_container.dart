@@ -168,7 +168,7 @@ class PreviewPopupContainer extends StatelessWidget {
               // Fixed-size image
               SizedBox(
                 height: 120,
-                child: MuscleApiService().getMuscleImageWidgetBuilder(exercise),
+                child: MuscleApiService().getMuscleImageBuilderForExercise(exercise),
               ),
             ],
           ),

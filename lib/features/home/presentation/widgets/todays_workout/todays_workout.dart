@@ -26,7 +26,7 @@ class TodaysWorkout extends StatelessWidget {
         }
 
         return NavigateWithInkwell(
-          destination: PreviewWorkout(listenable: listenable),
+          destination: PreviewWorkout(workoutListenable: listenable),
           child: Container(
             width: double.infinity,
             height: 476,

@@ -26,7 +26,7 @@
     "bodyPart": "waist",
     "equipment": "body weight",
     "id": "0002",
-    "name": "45\u00c2\u00b0 Side Bend",
+    "name": "45° Side Bend",
     "target": "abs",
     "secondaryMuscles": [
       "obliques"
@@ -38,11 +38,11 @@
       "Repeat on the other side.",
       "Continue alternating sides for the desired number of repetitions."
     ],
-    "description": "The 45\u00c2\u00b0 side bend is a bodyweight exercise targeting the abdominal muscles, particularly the obliques. It involves bending the torso to the side while standing, engaging the core for stability and control.",
+    "description": "The 45° side bend is a bodyweight exercise targeting the abdominal muscles, particularly the obliques. It involves bending the torso to the side while standing, engaging the core for stability and control.",
     "difficulty": "beginner",
     "category": "strength",
-    "image0": "assets/exercise_images/45\u00c2\u00b0 side bend_0.webp",
-    "image1": "assets/exercise_images/45\u00c2\u00b0 side bend_1.webp"
+    "image0": "assets/exercise_images/45° side bend_0.webp",
+    "image1": "assets/exercise_images/45° side bend_1.webp"
   },
   {
     "bodyPart": "waist",
@@ -10840,7 +10840,7 @@
     "bodyPart": "shoulders",
     "equipment": "kettlebell",
     "id": "0540",
-    "name": "One Arm Push Press\n\u2192 One Arm Push",
+    "name": "One Arm Push Press\n→ One Arm Push",
     "target": "delts",
     "secondaryMuscles": [
       "triceps",
@@ -13688,7 +13688,7 @@
     "bodyPart": "lower legs",
     "equipment": "sled machine",
     "id": "0738",
-    "name": "45\u00c2\u00b0 Calf Press",
+    "name": "45° Calf Press",
     "target": "calves",
     "secondaryMuscles": [
       "hamstrings"
@@ -13700,17 +13700,17 @@
       "Pause for a moment at the top, then slowly lower the sled platform back to the starting position.",
       "Repeat for the desired number of repetitions."
     ],
-    "description": "The sled 45\u00c2\u00b0 calf press is a machine-based exercise that targets the calves by pressing a weighted sled away using the balls of your feet, focusing on ankle extension.",
+    "description": "The sled 45° calf press is a machine-based exercise that targets the calves by pressing a weighted sled away using the balls of your feet, focusing on ankle extension.",
     "difficulty": "beginner",
     "category": "strength",
-    "image0": "assets/exercise_images/sled 45\u00c2\u00b0 calf press_0.webp",
-    "image1": "assets/exercise_images/sled 45\u00c2\u00b0 calf press_1.webp"
+    "image0": "assets/exercise_images/sled 45° calf press_0.webp",
+    "image1": "assets/exercise_images/sled 45° calf press_1.webp"
   },
   {
     "bodyPart": "upper legs",
     "equipment": "sled machine",
     "id": "0739",
-    "name": "45\u00c2\u00b0 Leg Press",
+    "name": "45° Leg Press",
     "target": "glutes",
     "secondaryMuscles": [
       "quadriceps",
@@ -13726,11 +13726,11 @@
       "Pause for a moment at the top of the movement, then slowly lower the footplate back towards your body by bending your knees.",
       "Repeat for the desired number of repetitions."
     ],
-    "description": "The sled 45\u00c2\u00b0 leg press is a compound lower body exercise performed on a sled machine. It primarily targets the glutes, with secondary emphasis on the quadriceps, hamstrings, and calves. The exercise involves pushing a weighted footplate away from the body while seated at a 45-degree angle, making it a popular choice for building lower body strength.",
+    "description": "The sled 45° leg press is a compound lower body exercise performed on a sled machine. It primarily targets the glutes, with secondary emphasis on the quadriceps, hamstrings, and calves. The exercise involves pushing a weighted footplate away from the body while seated at a 45-degree angle, making it a popular choice for building lower body strength.",
     "difficulty": "beginner",
     "category": "strength",
-    "image0": "assets/exercise_images/sled 45\u00c2\u00b0 leg press_0.webp",
-    "image1": "assets/exercise_images/sled 45\u00c2\u00b0 leg press_1.webp"
+    "image0": "assets/exercise_images/sled 45° leg press_0.webp",
+    "image1": "assets/exercise_images/sled 45° leg press_1.webp"
   },
   {
     "bodyPart": "upper legs",
@@ -13751,11 +13751,11 @@
       "Pause for a moment at the end of the movement, then slowly bend your knees to return to the starting position.",
       "Repeat for the desired number of repetitions."
     ],
-    "description": "The sled 45\u00c2\u00b0 leg wide press is a compound lower body exercise performed on a sled machine set at a 45-degree angle. It targets the glutes primarily, with significant involvement from the quadriceps, hamstrings, and calves. The wide stance emphasizes the glutes and inner thighs more than a standard leg press.",
+    "description": "The sled 45° leg wide press is a compound lower body exercise performed on a sled machine set at a 45-degree angle. It targets the glutes primarily, with significant involvement from the quadriceps, hamstrings, and calves. The wide stance emphasizes the glutes and inner thighs more than a standard leg press.",
     "difficulty": "beginner",
     "category": "strength",
-    "image0": "assets/exercise_images/sled 45\u00c2\u00b0 leg wide press_0.webp",
-    "image1": "assets/exercise_images/sled 45\u00c2\u00b0 leg wide press_1.webp"
+    "image0": "assets/exercise_images/sled 45° leg wide press_0.webp",
+    "image1": "assets/exercise_images/sled 45° leg wide press_1.webp"
   },
   {
     "bodyPart": "upper legs",
@@ -21772,11 +21772,11 @@
       "Pause for a moment at the top, then slowly bend your knees to lower the footplate back to the starting position.",
       "Repeat for the desired number of repetitions."
     ],
-    "description": "The sled 45\u00c2\u00b0 leg press (side pov) is a compound lower body exercise performed on a sled machine. It primarily targets the glutes and also works the quadriceps, hamstrings, and calves. The movement involves pressing a weighted footplate away from the body by extending the legs, then returning to the starting position by bending the knees.",
+    "description": "The sled 45° leg press (side pov) is a compound lower body exercise performed on a sled machine. It primarily targets the glutes and also works the quadriceps, hamstrings, and calves. The movement involves pressing a weighted footplate away from the body by extending the legs, then returning to the starting position by bending the knees.",
     "difficulty": "beginner",
     "category": "strength",
-    "image0": "assets/exercise_images/sled 45\u00c2\u00b0 leg press (side pov)_0.webp",
-    "image1": "assets/exercise_images/sled 45\u00c2\u00b0 leg press (side pov)_1.webp"
+    "image0": "assets/exercise_images/sled 45° leg press (side pov)_0.webp",
+    "image1": "assets/exercise_images/sled 45° leg press (side pov)_1.webp"
   },
   {
     "bodyPart": "upper legs",
@@ -21798,11 +21798,11 @@
       "Slowly bend your knees and lower the footplate back towards your body, controlling the movement.",
       "Repeat for the desired number of repetitions."
     ],
-    "description": "The sled 45\u00c2\u00b0 leg press (back POV) is a compound lower body exercise performed on a sled machine. It primarily targets the glutes, with secondary emphasis on the quadriceps, hamstrings, and calves. The movement involves extending and flexing the legs to press a weighted footplate away from and toward the body.",
+    "description": "The sled 45° leg press (back POV) is a compound lower body exercise performed on a sled machine. It primarily targets the glutes, with secondary emphasis on the quadriceps, hamstrings, and calves. The movement involves extending and flexing the legs to press a weighted footplate away from and toward the body.",
     "difficulty": "beginner",
     "category": "strength",
-    "image0": "assets/exercise_images/sled 45\u00c2\u00b0 leg press (back pov)_0.webp",
-    "image1": "assets/exercise_images/sled 45\u00c2\u00b0 leg press (back pov)_1.webp"
+    "image0": "assets/exercise_images/sled 45° leg press (back pov)_0.webp",
+    "image1": "assets/exercise_images/sled 45° leg press (back pov)_1.webp"
   },
   {
     "bodyPart": "upper legs",
