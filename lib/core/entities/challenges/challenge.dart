@@ -1,6 +1,6 @@
 import 'package:hive/hive.dart';
 
-part 'challenge.g.dart'; // This file will be generated
+part 'challenge.g.dart';
 
 @HiveType(typeId: 5)
 class Challenge extends HiveObject {
@@ -17,61 +17,60 @@ class Challenge extends HiveObject {
   final String imagePath;
 
   @HiveField(4)
-  int daysDone;
+  List<bool> dailyProgress;
 
   Challenge({
     required this.title,
     required this.description,
     required this.totalDays,
     required this.imagePath,
-    this.daysDone = 0,
-  });
+    List<bool>? dailyProgress,
+  }) : dailyProgress =
+            dailyProgress ?? List.generate(totalDays, (_) => false) {
+    assert(this.dailyProgress.length == totalDays,
+        'dailyProgress list length must equal totalDays.');
+  }
 
-  /// Automatically computed getter
+  int get daysDone => dailyProgress.where((done) => done).length;
+
   bool get isCompleted => daysDone >= totalDays;
 
-  /// Progress from 0.0 to 1.0
-  double get progress => daysDone / totalDays;
+  double get progress {
+    if (totalDays == 0) return 0.0;
+    return (daysDone / totalDays).clamp(0.0, 1.0);
+  }
 
-  void increaseDaysDone() {
-    if (!isCompleted) {
-      daysDone++;
+  void toggleDay(int dayIndex) {
+    if (dayIndex >= 0 && dayIndex < totalDays) {
+      dailyProgress[dayIndex] = !dailyProgress[dayIndex];
     }
   }
 
   void restartChallenge() {
-    daysDone = 0;
+    dailyProgress = List.generate(totalDays, (_) => false);
   }
 
-  Map<String, dynamic> toMap() {
-    return {
-      'title': title,
-      'description': description,
-      'totalDays': totalDays,
-      'imagePath': imagePath,
-      'daysDone': daysDone,
-    };
-  }
-
-  /// Converts the Challenge object into a Map (for Hive or JSON)
   Map<String, dynamic> toJson() {
     return {
       'title': title,
       'description': description,
       'totalDays': totalDays,
       'imagePath': imagePath,
-      'daysDone': daysDone,
+      // ✨ Use the new list for serialization
+      'dailyProgress': dailyProgress,
     };
   }
 
-  /// Creates a Challenge object from a Map (e.g., Firebase or JSON)
   factory Challenge.fromJson(Map<String, dynamic> json) {
+    final progressFromJson = json['dailyProgress'] as List<dynamic>?;
+    final dailyProgress = progressFromJson?.map((e) => e as bool).toList();
+
     return Challenge(
       title: json['title'] as String,
       description: json['description'] as String,
       totalDays: json['totalDays'] as int,
       imagePath: json['imagePath'] as String,
-      daysDone: (json['daysDone'] ?? 0) as int,
+      dailyProgress: dailyProgress,
     );
   }
 }

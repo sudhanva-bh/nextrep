@@ -21,7 +21,7 @@ class ChallengeAdapter extends TypeAdapter<Challenge> {
       description: fields[1] as String,
       totalDays: fields[2] as int,
       imagePath: fields[3] as String,
-      daysDone: fields[4] as int,
+      dailyProgress: (fields[4] as List?)?.cast<bool>(),
     );
   }
 
@@ -38,7 +38,7 @@ class ChallengeAdapter extends TypeAdapter<Challenge> {
       ..writeByte(3)
       ..write(obj.imagePath)
       ..writeByte(4)
-      ..write(obj.daysDone);
+      ..write(obj.dailyProgress);
   }
 
   @override

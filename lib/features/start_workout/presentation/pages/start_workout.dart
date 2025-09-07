@@ -8,6 +8,7 @@ import 'package:nextrep/core/services/exercises/exercise_raw_data_service.dart';
 import 'package:nextrep/core/theme/app_palette.dart';
 import 'package:nextrep/features/edit_workout/presentation/pages/add_exercise/add_exercise.dart';
 import 'package:nextrep/features/start_workout/presentation/widgets/current_workout.dart';
+import 'package:nextrep/features/start_workout/presentation/widgets/end_workout_dialog.dart';
 import 'package:nextrep/features/start_workout/presentation/widgets/exercise_session_card.dart';
 import 'package:nextrep/features/start_workout/presentation/widgets/exercise_timer.dart';
 
@@ -37,6 +38,35 @@ class _StartWorkoutState extends State<StartWorkout> {
   late List<bool> _workoutsDone;
   late List<List<bool>> _setsDone;
   late ScrollController _scrollController;
+
+  void _saveWorkout() {
+    showSnackBar(context, 'Workout changes have been saved!');
+    // Example: await myWorkoutRepository.updateWorkout(_workout);
+  }
+
+  // REPLACE the old _showEndWorkoutDialogs method with this new, cleaner one.
+  Future<void> _endWorkout() async {
+    final result = await EndWorkoutDialog.show(
+      context,
+      workoutsDone: _workoutsDone,
+      setsDone: _setsDone,
+    );
+
+    // If the user cancelled or the widget is no longer visible, do nothing.
+    if (result == null || !mounted) return;
+
+    // Handle the result from the dialog.
+    switch (result) {
+      case EndWorkoutResult.save:
+        _saveWorkout();
+        Navigator.of(context).pop();
+        break;
+      case EndWorkoutResult.discard:
+        showSnackBar(context, 'Workout changes were not saved.');
+        Navigator.of(context).pop();
+        break;
+    }
+  }
 
   void addExercise(String workoutId) {
     final isDuplicate = _workout.exercises.any(
@@ -224,151 +254,166 @@ class _StartWorkoutState extends State<StartWorkout> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: CustomScrollView(
-        controller: _scrollController,
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          SliverAppBar(
-            pinned: true,
-            collapsedHeight: 70,
-            expandedHeight: 400,
-            backgroundColor: AppPalette.surface,
-            flexibleSpace: FlexibleSpaceBar(
-              centerTitle: true,
-              title: Align(
-                alignment: Alignment.bottomCenter,
-                child: Text(
-                  _workout.workoutName,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              background: Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage(_workout.imagePath),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                child: Align(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, dynamic result) {
+        if (didPop) return;
+        _endWorkout();
+      },
+      child: Scaffold(
+        floatingActionButton: FloatingActionButton.extended(
+          // Call the new, cleaner function
+          onPressed: _endWorkout,
+          icon: const Icon(Icons.stop_circle_outlined),
+          label: const Text('End Workout'),
+        ),
+        body: CustomScrollView(
+          controller: _scrollController,
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverAppBar(
+              pinned: true,
+              collapsedHeight: 70,
+              expandedHeight: 400,
+              backgroundColor: AppPalette.surface,
+              flexibleSpace: FlexibleSpaceBar(
+                centerTitle: true,
+                title: Align(
                   alignment: Alignment.bottomCenter,
-                  child: Container(
-                    height: 100,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.transparent,
-                          AppPalette.background.withAlpha(155),
-                          AppPalette.background,
-                        ],
-                        stops: const [0, 0.6, 1],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
+                  child: Text(
+                    _workout.workoutName,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                background: Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage(_workout.imagePath),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Container(
+                      height: 100,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.transparent,
+                            AppPalette.background.withAlpha(155),
+                            AppPalette.background,
+                          ],
+                          stops: const [0, 0.6, 1],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: _TimerHeaderDelegate(
-              child: Column(
-                children: [
-                  SizedBox(height: 8),
-                  ExerciseTimer(
-                    startTime: widget.startTime,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                children: [
-                  CurrentWorkout(
-                    exercise: _currentExercise,
-                    exerciseSession: _currentExerciseSession,
-                    setsDone: _setsDone[_currentExerciseIndex],
-                    onToggle: (setIndex) =>
-                        changeWorkoutSetState(_currentExerciseIndex, setIndex),
-                    onAddSet: addCurrentSet,
-                    onDeleteSet: deleteCurrentSet,
-                    onUpdateSet: (setIndex, reps, weight) => updateCurrentSet(
-                      setIndex,
-                      reps: reps,
-                      weight: weight,
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _TimerHeaderDelegate(
+                child: Column(
+                  children: [
+                    SizedBox(height: 8),
+                    ExerciseTimer(
+                      startTime: widget.startTime,
                     ),
-                  ),
-
-                  SizedBox(height: 12),
-
-                  for (int i = 0; i < _workout.exercises.length; i++) ...[
-                    // ✨ Wrap the card with the Dismissible widget
-                    Dismissible(
-                      key: ValueKey(
-                        _exercises[i].id,
-                      ), // A unique key is mandatory for Dismissible
-                      direction: DismissDirection
-                          .endToStart, // Allow swiping from right to left
-                      onDismissed: (direction) {
-                        // Call your new delete function when the item is swiped away
-                        deleteExercise(i);
-                      },
-                      // This is the background that appears during the swipe
-                      background: Container(
-                        decoration: BoxDecoration(
-                          color: AppPalette.error,
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        alignment: Alignment.centerRight,
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: const Icon(
-                          Icons.delete_outline,
-                          color: AppPalette.onError,
-                          size: 30,
-                        ),
-                      ),
-                      child: GestureDetector(
-                        onTap: () => changeCurrentExercise(i),
-                        child: StartExerciseSessionCard(
-                          exercise: _exercises[i],
-                          exerciseSession: _workout.exercises[i],
-                          isDone: _workoutsDone[i],
-                          onToggle: () => changeWorkoutState(i),
-                          isSelected: i == _currentExerciseIndex,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
                   ],
-                  TextButton(
-                    onPressed: () => BottomAddExercisePopup.showPopup(
-                      context,
-                      (workoutId) => addExercise(workoutId),
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  children: [
+                    CurrentWorkout(
+                      exercise: _currentExercise,
+                      exerciseSession: _currentExerciseSession,
+                      setsDone: _setsDone[_currentExerciseIndex],
+                      onToggle: (setIndex) => changeWorkoutSetState(
+                        _currentExerciseIndex,
+                        setIndex,
+                      ),
+                      onAddSet: addCurrentSet,
+                      onDeleteSet: deleteCurrentSet,
+                      onUpdateSet: (setIndex, reps, weight) => updateCurrentSet(
+                        setIndex,
+                        reps: reps,
+                        weight: weight,
+                      ),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Text(
-                        "+ Add Exercise",
-                        style: TextStyle(
-                          color: AppPalette.primary,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
+
+                    SizedBox(height: 12),
+
+                    for (int i = 0; i < _workout.exercises.length; i++) ...[
+                      // ✨ Wrap the card with the Dismissible widget
+                      Dismissible(
+                        key: ValueKey(
+                          _exercises[i].id,
+                        ), // A unique key is mandatory for Dismissible
+                        direction: DismissDirection
+                            .endToStart, // Allow swiping from right to left
+                        onDismissed: (direction) {
+                          // Call your new delete function when the item is swiped away
+                          deleteExercise(i);
+                        },
+                        // This is the background that appears during the swipe
+                        background: Container(
+                          decoration: BoxDecoration(
+                            color: AppPalette.error,
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: const Icon(
+                            Icons.delete_outline,
+                            color: AppPalette.onError,
+                            size: 30,
+                          ),
+                        ),
+                        child: GestureDetector(
+                          onTap: () => changeCurrentExercise(i),
+                          child: StartExerciseSessionCard(
+                            exercise: _exercises[i],
+                            exerciseSession: _workout.exercises[i],
+                            isDone: _workoutsDone[i],
+                            onToggle: () => changeWorkoutState(i),
+                            isSelected: i == _currentExerciseIndex,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                    TextButton(
+                      onPressed: () => BottomAddExercisePopup.showPopup(
+                        context,
+                        (workoutId) => addExercise(workoutId),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Text(
+                          "+ Add Exercise",
+                          style: TextStyle(
+                            color: AppPalette.primary,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
