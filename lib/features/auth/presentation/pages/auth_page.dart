@@ -198,9 +198,13 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     }
   }
 
-  void continueWithGoogle() {}
+  void continueWithGoogle() {
+    showSnackBar(context, "Coming Soon!");
+  }
 
-  void continueWithApple() {}
+  void continueWithApple() {
+    showSnackBar(context, "Coming Soon!");
+  }
 
   @override
   void initState() {
