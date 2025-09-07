@@ -34,7 +34,7 @@ class _BottomNavigatorControllerState extends State<BottomNavigatorController> {
     KeepAlivePage(child: HomeScreen()),
     KeepAlivePage(child: AllWorkouts()),
     KeepAlivePage(child: ProgressScreen()),
-    KeepAlivePage(child: ProfileScreen()),
+    KeepAlivePage(child: ProfilePage()),
   ];
 
   void _onItemTapped(int index) {

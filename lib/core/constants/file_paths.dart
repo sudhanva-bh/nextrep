@@ -29,4 +29,9 @@ class WorkoutImagePaths {
   static const String water = "assets/workouts/water.png";
   static const String pushup = "assets/workouts/pushup.png";
   static const String stretch = "assets/workouts/stretch.png";
+
+  static const List<String> allPaths = [
+    arms, back, chest, legs, meditate, pushup,
+    sleep, stretch, sugar, walking, water,
+  ];
 }
