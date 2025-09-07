@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nextrep/core/theme/app_palette.dart';
+import 'package:nextrep/features/all_workouts/presentation/pages/all_workouts.dart';
 import 'package:nextrep/features/home/presentation/pages/home_screen.dart';
-import 'package:nextrep/features/profile/presentation/profile_screen.dart';
+import 'package:nextrep/features/profile/presentation/pages/profile_screen.dart';
 import 'package:nextrep/features/progress/presentation/progress_screen.dart';
 
 class BottomNavigatorController extends StatefulWidget {
@@ -31,7 +32,7 @@ class _BottomNavigatorControllerState extends State<BottomNavigatorController> {
 
   final List<Widget> _pages = [
     KeepAlivePage(child: HomeScreen()),
-    KeepAlivePage(child: Placeholder()),
+    KeepAlivePage(child: AllWorkouts()),
     KeepAlivePage(child: ProgressScreen()),
     KeepAlivePage(child: ProfileScreen()),
   ];

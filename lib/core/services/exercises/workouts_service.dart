@@ -69,6 +69,9 @@ class WorkoutsService {
     return box.listenable(keys: [workoutName])
         .map((_) => box.get(workoutName));
   }
+  ValueListenable<List<Workout>> getAllWorkoutsListenable() {
+    return box.listenable().map((_) => box.values.toList());
+  }
 }
 
 // Small extension to map a ValueListenable<T> to another type
