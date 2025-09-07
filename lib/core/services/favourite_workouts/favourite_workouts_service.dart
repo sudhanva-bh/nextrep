@@ -50,6 +50,7 @@ class FavouriteWorkoutsService {
   }
 
   Future<void> putPresetWorkouts() async {
+    await box.clear();
     if (box.isEmpty) {
       for (final workout in PresetWorkouts.favourites) {
         await box.put(workout.workoutName, workout);

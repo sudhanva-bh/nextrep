@@ -1,9 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:nextrep/core/common/utils/show_snackbar.dart';
 import 'package:nextrep/core/entities/exercise/exercise_model.dart';
 import 'package:nextrep/core/entities/workout/workout.dart';
 import 'package:nextrep/core/navigation/navigate_to_classes/navigate_run_function.dart';
 import 'package:nextrep/core/services/exercises/exercise_raw_data_service.dart';
+import 'package:nextrep/core/services/favourite_workouts/favourite_workouts_service.dart';
 import 'package:nextrep/core/theme/app_palette.dart';
 import 'package:nextrep/features/edit_workout/presentation/pages/edit_exercise.dart/edit_workout.dart';
 import 'package:nextrep/features/preview_workout/presentation/utils/bottom_workout_preview_popup.dart';
@@ -111,6 +113,20 @@ class _PreviewWorkoutState extends State<PreviewWorkout> {
             physics: const BouncingScrollPhysics(),
             slivers: [
               SliverAppBar(
+                actions: [
+                  // Favourite button
+                  IconButton(
+                    onPressed: () {
+                      FavouriteWorkoutsService().updateWorkout(workout);
+                      showSnackBar(context, 'Workout added to favourites!');
+                    },
+                    icon: Icon(
+                      Icons
+                          .star_border, // or Icons.star if you want to toggle based on state
+                      color: AppPalette.onSurface,
+                    ),
+                  ),
+                ],
                 pinned: true,
                 collapsedHeight: 70,
                 expandedHeight: 400,

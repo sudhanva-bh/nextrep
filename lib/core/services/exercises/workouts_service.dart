@@ -50,6 +50,7 @@ class WorkoutsService {
   }
 
   Future<void> putPresetWorkouts() async {
+    await box.clear();
     if (box.isEmpty) {
       for (final workout in PresetWorkouts.workouts) {
         await box.put(workout.workoutName, workout);
@@ -66,9 +67,9 @@ class WorkoutsService {
 
   ValueListenable<Workout?> workoutListenable(String workoutName) {
     // Wrap it in a MapValueListenableBuilder so we only listen to that key
-    return box.listenable(keys: [workoutName])
-        .map((_) => box.get(workoutName));
+    return box.listenable(keys: [workoutName]).map((_) => box.get(workoutName));
   }
+
   ValueListenable<List<Workout>> getAllWorkoutsListenable() {
     return box.listenable().map((_) => box.values.toList());
   }

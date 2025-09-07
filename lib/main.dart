@@ -6,7 +6,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nextrep/auth_wrapper.dart';
+import 'package:nextrep/core/entities/favourite_workouts/favourite_workout.dart';
 import 'package:nextrep/core/services/challenges/challenges_service.dart';
+import 'package:nextrep/core/services/exercises/workouts_service.dart';
+import 'package:nextrep/core/services/favourite_workouts/favourite_workouts_service.dart';
 import 'package:nextrep/core/services/hive_init_service.dart';
 import 'package:nextrep/core/theme/theme.dart';
 import 'package:nextrep/firebase_options.dart';
@@ -26,8 +29,6 @@ void main() async {
   );
 
   await HiveInitService.initHive();
-
-  ChallengesService().putPresetChallenges();
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
