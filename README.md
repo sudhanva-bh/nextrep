@@ -31,7 +31,7 @@ Coming Soon
 ---
 
 ##  Setup Instructions  
-Download the [APK](https://github.com/sudhanva-bh/nextrep/blob/main/main_build.apk) here or
+Download the [APK](https://github.com/sudhanva-bh/nextrep/releases/tag/v1.0.0) here or
 
 ### 1. Clone the repository  
 ```bash
