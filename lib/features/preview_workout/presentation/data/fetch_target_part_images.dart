@@ -12,7 +12,7 @@ class MuscleApiService {
 
   // --- Maps and color converter (Unchanged) ---
   String colorToRgbString(Color color) =>
-      '${color.red},${color.green},${color.blue}';
+      '${(color.r * 255.0).round() & 0xff},${(color.g * 255.0).round() & 0xff},${(color.b * 255.0).round() & 0xff}';
   static const Map<String, String> targetMap = {
     "abductors": "abductors",
     "abs": "abs",

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nextrep/core/constants/file_paths.dart';
 import 'package:nextrep/core/constants/widget_properties.dart';
 import 'package:nextrep/core/theme/app_palette.dart';
 import 'package:nextrep/features/preview_workout/presentation/data/fetch_target_part_images.dart';
-import 'package:nextrep/features/preview_workout/presentation/utils/bottom_workout_preview_popup.dart';
 
 class Overview extends StatelessWidget {
   const Overview({

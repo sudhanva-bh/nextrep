@@ -183,7 +183,7 @@ class _AddExercisePopupContainerState extends State<AddExercisePopupContainer> {
                       hintText: 'Search exercises...',
                       prefixIcon: const Icon(Icons.search, color: Colors.grey),
                       filled: true,
-                      fillColor: Colors.grey.withOpacity(0.1),
+                      fillColor: Colors.grey.withAlpha(25),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,

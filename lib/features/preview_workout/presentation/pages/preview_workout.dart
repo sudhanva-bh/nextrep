@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:nextrep/core/constants/file_paths.dart';
 import 'package:nextrep/core/entities/exercise/exercise_model.dart';
 import 'package:nextrep/core/entities/workout/workout.dart';
 import 'package:nextrep/core/navigation/navigate_to_classes/navigate_run_function.dart';

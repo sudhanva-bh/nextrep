@@ -127,7 +127,7 @@ class _FilterExerciseState extends State<FilterExercise> {
                     });
                   },
                   backgroundColor: AppPalette.lightSurface,
-                  selectedColor: AppPalette.primary.withOpacity(0.2),
+                  selectedColor: AppPalette.primary.withAlpha(51),
                   checkmarkColor: AppPalette.primary,
                   shape: StadiumBorder(
                     side: BorderSide(
@@ -188,7 +188,7 @@ class _FilterExerciseState extends State<FilterExercise> {
               borderRadius: BorderRadius.circular(24),
               borderColor: AppPalette.outline,
               selectedBorderColor: AppPalette.primary,
-              fillColor: AppPalette.primary.withOpacity(0.2),
+              fillColor: AppPalette.primary.withAlpha(51),
               selectedColor: AppPalette.primary,
               color: AppPalette.onSurface,
               constraints: const BoxConstraints(minHeight: 40, minWidth: 100),

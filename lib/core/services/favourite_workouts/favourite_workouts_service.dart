@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:nextrep/core/data/preset_workouts.dart';
 import 'package:nextrep/core/entities/workout/workout.dart';
