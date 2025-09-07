@@ -7,7 +7,7 @@ class ProgressScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Center(
-        child: Text("Progress"),
+        child: Text("Progress Coming Soon"),
       ),
     );
   }
