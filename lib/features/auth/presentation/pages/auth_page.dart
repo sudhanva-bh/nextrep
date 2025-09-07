@@ -263,34 +263,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                                 color: AppPalette.surface,
                                 borderRadius: BorderRadius.circular(32),
                               ),
-                              child: Column(
-                                children: [
-                                  currentSection,
-                                  IconButton(
-                                    onPressed: () async {
-                                      final authResult = await ref
-                                          .read(authControllerProvider)
-                                          .emailSignIn(
-                                            "bhsudhanva@gmail.com",
-                                            "Test123",
-                                          );
-                                      authResult.fold(
-                                        (_) {},
-                                        (user) async {
-                                          await ref
-                                              .read(authControllerProvider)
-                                              .syncOnLogin(user.uid);
-                                          NavigateWithFadeNoBack(
-                                            context,
-                                            BottomNavigatorController(),
-                                          );
-                                        },
-                                      );
-                                    },
-                                    icon: const Icon(Icons.lock),
-                                  ),
-                                ],
-                              ),
+                              child: currentSection,
                             ),
                           ),
                           const SizedBox(
