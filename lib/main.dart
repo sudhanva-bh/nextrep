@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 import 'package:nextrep/auth_wrapper.dart';
+import 'package:nextrep/core/entities/workout/workout.dart';
 import 'package:nextrep/core/services/hive_init_service.dart';
 import 'package:nextrep/core/theme/theme.dart';
 import 'package:nextrep/firebase_options.dart';
@@ -28,6 +30,12 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+
+  print(
+    Hive.box<Workout>(
+      'workoutsBox',
+    ).values.where((workout) => workout.isFavourite).toList(),
+  );
 
   runApp(
     ProviderScope(

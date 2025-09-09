@@ -96,9 +96,12 @@ class _HomePageState extends ConsumerState<HomeScreen> {
               ),
             ),
             DailyChallenges(),
-            Padding(
-              padding: const EdgeInsets.only(top: 18, left: 18, right: 18),
-              child: FavouriteWorkouts(),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 18, left: 18, right: 18),
+                child: FavouriteWorkouts(),
+              ),
             ),
           ],
         ),

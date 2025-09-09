@@ -3,7 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:nextrep/core/constants/widget_properties.dart';
 import 'package:nextrep/core/entities/workout/workout.dart';
 import 'package:nextrep/core/navigation/navigate_to_classes/navigate_with_inkwell.dart';
-import 'package:nextrep/core/services/favourite_workouts/favourite_workouts_service.dart';
+import 'package:nextrep/core/services/exercises/workouts_service.dart';
 import 'package:nextrep/core/theme/app_palette.dart';
 import 'package:nextrep/features/home/presentation/widgets/favourite_workouts/folder.dart';
 import 'package:nextrep/features/preview_workout/presentation/pages/preview_workout.dart';
@@ -15,7 +15,7 @@ class FavouriteWorkoutsTiles extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return NavigateWithInkwell(
-      destination: PreviewWorkout(workoutListenable: FavouriteWorkoutsService().workoutListenable(workout.workoutName)),
+      destination: PreviewWorkout(workoutListenable: WorkoutsService().workoutListenable(workout.workoutName)),
       child: Container(
         width: double.infinity,
         height: 176,

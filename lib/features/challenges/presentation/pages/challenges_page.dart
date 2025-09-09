@@ -107,7 +107,7 @@ class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
                         gradient: LinearGradient(
                           colors: [
                             Colors.transparent,
-                            AppPalette.background.withOpacity(0.7),
+                            AppPalette.background.withAlpha(177),
                             AppPalette.background,
                           ],
                           stops: const [0, 0.7, 1],

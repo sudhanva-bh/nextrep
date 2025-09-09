@@ -1,8 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
-
 import 'package:hive/hive.dart';
-
 import 'package:nextrep/core/entities/workout/exercise_session.dart';
 
 part 'workout.g.dart';
@@ -18,10 +16,14 @@ class Workout extends HiveObject {
   @HiveField(2)
   final String imagePath;
 
+  @HiveField(3, defaultValue: false) // ✅ New field with default value
+  final bool isFavourite;
+
   Workout({
     required this.workoutName,
     required this.exercises,
     required this.imagePath,
+    this.isFavourite = false, // ✅ default false
   });
 
   Map<String, dynamic> toMap() {
@@ -29,6 +31,7 @@ class Workout extends HiveObject {
       'workoutName': workoutName,
       'exercises': exercises.map((x) => x.toMap()).toList(),
       'imagePath': imagePath,
+      'isFavourite': isFavourite,
     };
   }
 
@@ -41,6 +44,7 @@ class Workout extends HiveObject {
         ),
       ),
       imagePath: map['imagePath'] as String,
+      isFavourite: map['isFavourite'] as bool? ?? false,
     );
   }
 
@@ -53,11 +57,13 @@ class Workout extends HiveObject {
     String? workoutName,
     List<ExerciseSession>? exercises,
     String? imagePath,
+    bool? isFavourite,
   }) {
     return Workout(
       workoutName: workoutName ?? this.workoutName,
       exercises: exercises ?? this.exercises,
       imagePath: imagePath ?? this.imagePath,
+      isFavourite: isFavourite ?? this.isFavourite,
     );
   }
 
@@ -66,6 +72,7 @@ class Workout extends HiveObject {
     final exerciseIds = exercises.map((e) => e.workoutId).join(', ');
 
     return 'Workout(workoutName: $workoutName, '
-        'exercises: [$exerciseIds]';
+        'exercises: [$exerciseIds], '
+        'isFavourite: $isFavourite)';
   }
 }

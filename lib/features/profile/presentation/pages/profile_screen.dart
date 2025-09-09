@@ -46,8 +46,18 @@ class _ProfilePageState extends State<ProfilePage> {
       _isEditing = !_isEditing;
       if (_isEditing) {
         _nameController.text = profile.name;
-        _selectedExperience = profile.experience;
-        _selectedGender = profile.gender;
+
+        // Normalize values to match dropdown items
+        final validExperiences = ['Beginner', 'Intermediate', 'Advanced'];
+        final validGenders = ['Male', 'Female', 'Other', 'Prefer not to say'];
+
+        _selectedExperience = validExperiences.contains(profile.experience)
+            ? profile.experience
+            : null;
+
+        _selectedGender = validGenders.contains(profile.gender)
+            ? profile.gender
+            : null;
       }
     });
   }

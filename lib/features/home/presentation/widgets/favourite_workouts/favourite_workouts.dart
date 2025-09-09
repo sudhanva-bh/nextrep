@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nextrep/core/entities/workout/workout.dart';
-import 'package:nextrep/core/services/favourite_workouts/favourite_workouts_service.dart';
+import 'package:nextrep/core/services/exercises/workouts_service.dart';
 import 'package:nextrep/features/home/presentation/widgets/favourite_workouts/favourite_workouts_tiles.dart';
 
 class FavouriteWorkouts extends StatelessWidget {
@@ -9,10 +9,28 @@ class FavouriteWorkouts extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<List<Workout>>(
-      valueListenable: FavouriteWorkoutsService().getAllWorkoutsListenable(),
+      valueListenable: WorkoutsService().getFavouriteWorkoutsListenable(),
       builder: (context, favouriteExercises, _) {
         if (favouriteExercises.isEmpty) {
-          return const SizedBox.shrink(); // or show "No favourites yet"
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Favourites",
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                "No favourites added yet",
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ); // or show "No favourites yet"
         }
 
         return Column(

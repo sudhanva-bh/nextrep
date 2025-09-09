@@ -5,7 +5,7 @@ import 'package:nextrep/core/entities/exercise/exercise_model.dart';
 import 'package:nextrep/core/entities/workout/workout.dart';
 import 'package:nextrep/core/navigation/navigate_to_classes/navigate_run_function.dart';
 import 'package:nextrep/core/services/exercises/exercise_raw_data_service.dart';
-import 'package:nextrep/core/services/favourite_workouts/favourite_workouts_service.dart';
+import 'package:nextrep/core/services/exercises/workouts_service.dart';
 import 'package:nextrep/core/theme/app_palette.dart';
 import 'package:nextrep/features/edit_workout/presentation/pages/edit_exercise.dart/edit_workout.dart';
 import 'package:nextrep/features/preview_workout/presentation/utils/bottom_workout_preview_popup.dart';
@@ -116,15 +116,33 @@ class _PreviewWorkoutState extends State<PreviewWorkout> {
                 actions: [
                   // Favourite button
                   IconButton(
-                    onPressed: () {
-                      FavouriteWorkoutsService().updateWorkout(workout);
+                    onPressed: () async {
+                      await WorkoutsService().addFavourite(workout.workoutName);
                       showSnackBar(context, 'Workout added to favourites!');
                     },
                     icon: Icon(
-                      Icons
-                          .star_border, // or Icons.star if you want to toggle based on state
-                      color: AppPalette.onSurface,
+                      workout.isFavourite ? Icons.star : Icons.star_border,
+                      color: workout.isFavourite
+                          ? AppPalette.primary
+                          : AppPalette.onSurface,
                     ),
+                  ),
+
+                  // Edit Workout button
+                  IconButton(
+                    onPressed: () {
+                      Navigator.push<Workout>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EditWorkout(
+                            workout: workout,
+                            exercises: exercises,
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.edit),
+                    color: AppPalette.onSurface,
                   ),
                 ],
                 pinned: true,
@@ -133,36 +151,14 @@ class _PreviewWorkoutState extends State<PreviewWorkout> {
                 backgroundColor: AppPalette.surface,
                 flexibleSpace: FlexibleSpaceBar(
                   centerTitle: true,
-                  title: Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Text(
-                          workout.workoutName,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                  title: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Text(
+                      workout.workoutName,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
                       ),
-                      Align(
-                        alignment: Alignment.bottomRight,
-                        child: IconButton(
-                          onPressed: () {
-                            Navigator.push<Workout>(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => EditWorkout(
-                                  workout: workout,
-                                  exercises: exercises,
-                                ),
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.edit),
-                          color: AppPalette.onSurface,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                   background: Container(
                     decoration: BoxDecoration(

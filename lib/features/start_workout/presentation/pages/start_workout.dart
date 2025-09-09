@@ -261,6 +261,7 @@ class _StartWorkoutState extends State<StartWorkout> {
         _endWorkout();
       },
       child: Scaffold(
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: FloatingActionButton.extended(
           // Call the new, cleaner function
           onPressed: _endWorkout,

@@ -4,8 +4,6 @@ import 'package:nextrep/core/services/challenges/challenges_service.dart';
 import 'package:nextrep/core/services/challenges/firebase_challenge_service.dart';
 import 'package:nextrep/core/services/exercises/firebase_exercise_service.dart';
 import 'package:nextrep/core/services/exercises/workouts_service.dart';
-import 'package:nextrep/core/services/favourite_workouts/favourite_workouts_service.dart';
-import 'package:nextrep/core/services/favourite_workouts/firebase_favourite_workouts_service.dart';
 import 'package:nextrep/core/services/user_profile/user_profile_service.dart';
 import 'package:nextrep/core/services/user_profile/firebase_user_profile_service.dart';
 
@@ -19,9 +17,6 @@ class ProfileSyncService {
 
   final workoutsCloudService = FirebaseExerciseService();
   final workoutsLocalService = WorkoutsService();
-
-  final favouriteWorkoutLocalService = FavouriteWorkoutsService();
-  final favouriteWorkoutCloudService = FirebaseFavouriteExerciseService();
 
   /// Called after login: fetch from cloud and store locally
   Future<Either<Failure, Unit>> syncProfileOnLogin(String uid) async {
@@ -50,20 +45,6 @@ class ProfileSyncService {
       }
       await workoutsLocalService.updateAllWorkouts(cloudWorkouts);
 
-      // --- Sync Favourite Workouts ---
-      final cloudFavouriteWorkouts = await favouriteWorkoutCloudService
-          .fetchProfileWorkouts(
-            uid,
-          );
-      if (cloudFavouriteWorkouts == null) {
-        return left(
-          Failure('No favourite workouts found in cloud for UID: $uid'),
-        );
-      }
-      await favouriteWorkoutLocalService.updateAllWorkouts(
-        cloudFavouriteWorkouts,
-      );
-
       return right(unit);
     } catch (e) {
       return left(Failure(e.toString()));
@@ -89,9 +70,7 @@ class ProfileSyncService {
 
       // --- Create Preset Workouts ---
       await workoutsLocalService.putPresetWorkouts();
-
-      // --- Create Preset Workouts ---
-      await favouriteWorkoutLocalService.putPresetWorkouts();
+      await workoutsLocalService.putPresetFavouriteWorkouts();
 
       // --- Sync Workouts ---
       await syncProfileOnCommand(uid);
@@ -129,15 +108,6 @@ class ProfileSyncService {
       );
       await workoutsLocalService.deleteAllWorkouts();
 
-      // --- Sync & Clear Favourite Workouts ---
-      final allSavedFavouriteWorkouts = favouriteWorkoutLocalService
-          .getAllWorkouts();
-      await favouriteWorkoutCloudService.uploadProfileWorkouts(
-        uid,
-        allSavedFavouriteWorkouts,
-      );
-      await favouriteWorkoutLocalService.deleteAllWorkouts();
-
       return right(unit);
     } catch (e) {
       return left(Failure(e.toString()));
@@ -166,14 +136,6 @@ class ProfileSyncService {
       await workoutsCloudService.uploadProfileWorkouts(
         uid,
         allSavedWorkouts,
-      );
-
-      // --- Sync Favourite Workouts ---
-      final allSavedFavouriteWorkouts = favouriteWorkoutLocalService
-          .getAllWorkouts();
-      await favouriteWorkoutCloudService.uploadProfileWorkouts(
-        uid,
-        allSavedFavouriteWorkouts,
       );
 
       return right(unit);

@@ -20,19 +20,22 @@ class WorkoutAdapter extends TypeAdapter<Workout> {
       workoutName: fields[0] as String,
       exercises: (fields[1] as List).cast<ExerciseSession>(),
       imagePath: fields[2] as String,
+      isFavourite: fields[3] == null ? false : fields[3] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, Workout obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.workoutName)
       ..writeByte(1)
       ..write(obj.exercises)
       ..writeByte(2)
-      ..write(obj.imagePath);
+      ..write(obj.imagePath)
+      ..writeByte(3)
+      ..write(obj.isFavourite);
   }
 
   @override
