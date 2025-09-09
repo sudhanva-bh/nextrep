@@ -4,23 +4,27 @@ import 'package:nextrep/core/entities/exercise/exercise_model.dart';
 class ExerciseService {
   static final box = Hive.box<Exercise>('exercisesBox');
 
+  /* --------------------- Get Exercises --------------------- */
+
+  /// Get a single exercise by its unique ID
   Exercise getExerciseById(String id) {
     return box.get(id)!;
   }
 
+  /// Get all saved exercises
   List<Exercise> getAllExercises() {
     return box.values.toList();
   }
 
-  /// Searches and filters exercises from the Hive box based on multiple criteria.
-  ///
-  /// This function can filter by various attributes like body part, difficulty, etc.,
-  /// and also perform a case-insensitive text search on the exercise name.
-  List<Exercise> searchAndFilterExercises({
-    /// A text query to search within the exercise names.
-    String? query,
+  /* --------------------- Search & Filter --------------------- */
 
-    // Filter parameters from the previous function
+  /// Search and filter exercises from the Hive box.
+  ///
+  /// - Performs a case-insensitive name search
+  /// - Supports multiple filters (body part, difficulty, equipment, etc.)
+  /// - Can include secondary muscles in the search
+  List<Exercise> searchAndFilterExercises({
+    String? query,
     String? bodyPart,
     String? difficulty,
     String? equipment,
@@ -28,18 +32,14 @@ class ExerciseService {
     String? targetMuscle,
     bool includeSecondaryMuscles = false,
   }) {
-    // Pre-calculate lowercase versions to optimize comparisons inside the loop.
     final lowercasedQuery = query?.toLowerCase();
     final lowercasedTargetMuscle = targetMuscle?.toLowerCase();
 
     return box.values.where((exercise) {
-      // Condition for the name search query.
-      // It's a match if no query is provided OR if the name contains the query.
       final matchesQuery =
           lowercasedQuery == null ||
           exercise.name.toLowerCase().contains(lowercasedQuery);
 
-      // Conditions for the filters (same as before).
       final matchesBodyPart =
           bodyPart == null ||
           exercise.bodyPart.toLowerCase() == bodyPart.toLowerCase();
@@ -64,7 +64,6 @@ class ExerciseService {
                 (muscle) => muscle.toLowerCase() == lowercasedTargetMuscle,
               ));
 
-      // An exercise is included in the final list only if it matches the search query AND all active filters.
       return matchesQuery &&
           matchesBodyPart &&
           matchesDifficulty &&
@@ -74,48 +73,9 @@ class ExerciseService {
     }).toList();
   }
 
-  // /// Returns a unique, sorted list of all exercise categories.
-  // List<String> getAllCategories() {
-  //   final categories = box.values.map((e) => e.category).toSet().toList();
-  //   categories.sort();
-  //   return categories;
-  // }
+  /* --------------------- Static Metadata --------------------- */
 
-  // /// Returns a unique, sorted list of all body parts.
-  // List<String> getAllBodyParts() {
-  //   final bodyParts = box.values.map((e) => e.bodyPart).toSet().toList();
-  //   bodyParts.sort();
-  //   return bodyParts;
-  // }
-
-  // /// Returns a unique, sorted list of all primary target muscles.
-  // List<String> getAllTargetMuscles() {
-  //   final targetMuscles = box.values
-  //       .map((e) => e.targetMuscle)
-  //       .toSet()
-  //       .toList();
-  //   targetMuscles.sort();
-  //   return targetMuscles;
-  // }
-
-  // /// Returns a unique, sorted list of all secondary muscles from all exercises.
-  // List<String> getAllSecondaryMuscles() {
-  //   // Use expand() to flatten the list of lists into a single iterable
-  //   final secondaryMuscles = box.values
-  //       .expand((e) => e.secondaryMuscles)
-  //       .toSet()
-  //       .toList();
-  //   secondaryMuscles.sort();
-  //   return secondaryMuscles;
-  // }
-
-  // /// Returns a unique, sorted list of all equipment types.
-  // List<String> getAllEquipment() {
-  //   final equipment = box.values.map((e) => e.equipment).toSet().toList();
-  //   equipment.sort();
-  //   return equipment;
-  // }
-  /// Returns a static, sorted list of all exercise categories.
+  /// Returns a static, sorted list of all exercise categories
   List<String> getAllCategories() {
     return [
       'balance',
@@ -128,7 +88,7 @@ class ExerciseService {
     ];
   }
 
-  /// Returns a static, sorted list of all body parts.
+  /// Returns a static, sorted list of all body parts
   List<String> getAllBodyParts() {
     return [
       'back',
@@ -144,7 +104,7 @@ class ExerciseService {
     ];
   }
 
-  /// Returns a static, sorted list of all primary target muscles.
+  /// Returns a static, sorted list of all primary target muscles
   List<String> getAllTargetMuscles() {
     return [
       // Neck/Upper back stabilizers
@@ -182,7 +142,7 @@ class ExerciseService {
     ];
   }
 
-  /// Returns a static, sorted list of all secondary muscles.
+  /// Returns a static, sorted list of all secondary muscles
   List<String> getAllSecondaryMuscles() {
     return [
       'abdominals',
@@ -228,9 +188,8 @@ class ExerciseService {
     ];
   }
 
-  /// Returns a static, sorted list of all equipment types.
+  /// Returns a static, sorted list of all equipment types
   List<String> getAllEquipment() {
-    // This list has been deduplicated and sorted from your source log.
     return [
       'assisted',
       'band',

@@ -6,11 +6,12 @@ class UserProfileService {
   static const _boxName = 'user_profile';
   final box = Hive.box<UserProfile>(_boxName);
 
-  /// Create and save a new profile with default or given values
+  /* --------------------- Profile Management --------------------- */
+
+  /// Create and save a new profile
   Future<void> createInitialProfile({
     required String name,
     double height = 0.0,
-    double weight = 0.0,
     String experience = '',
     String gender = '',
     double? targetWeight,
@@ -18,12 +19,11 @@ class UserProfileService {
     final newUser = UserProfile(
       name: name,
       height: height,
-      weight: weight,
+      weightHistory: [], // start empty
       experience: experience,
       gender: gender,
       targetWeight: targetWeight,
     );
-
     await box.put('current_user', newUser);
   }
 
@@ -32,70 +32,78 @@ class UserProfileService {
     await box.put('current_user', profile);
   }
 
-  /// Get the saved profile (if any)
-  UserProfile? getFromLocal() {
-    return box.get('current_user');
-  }
+  /// Get the saved profile
+  UserProfile? getFromLocal() => box.get('current_user');
 
   /// Delete the saved profile
-  Future<void> deleteLocalProfile() async {
-    await box.delete('current_user');
-  }
+  Future<void> deleteLocalProfile() async => box.delete('current_user');
 
-  /*---------------------------------------------------------------------------*/
+  /* --------------------- Profile Updates --------------------- */
 
-  /// Update just the name field
-  Future<void> updateName(String newName) async {
+  /// Generic update function for immutability
+  Future<void> updateProfile(UserProfile Function(UserProfile) updateFn) async {
     final currentUser = box.get('current_user');
     if (currentUser != null) {
-      final updatedUser = currentUser.copyWith(name: newName);
+      final updatedUser = updateFn(currentUser);
       await box.put('current_user', updatedUser);
     }
   }
 
-  /// Update just the height field
-  Future<void> updateHeight(double newHeight) async {
-    final currentUser = box.get('current_user');
-    if (currentUser != null) {
-      final updatedUser = currentUser.copyWith(height: newHeight);
-      await box.put('current_user', updatedUser);
-    }
+  /// Update name
+  Future<void> updateName(String newName) async =>
+      updateProfile((p) => p.copyWith(name: newName));
+
+  /// Update height
+  Future<void> updateHeight(double newHeight) async =>
+      updateProfile((p) => p.copyWith(height: newHeight));
+
+  /// Update target weight
+  Future<void> updateTargetWeight(double newTargetWeight) async =>
+      updateProfile((p) => p.copyWith(targetWeight: newTargetWeight));
+
+  /// Update experience
+  Future<void> updateExperience(String newExperience) async =>
+      updateProfile((p) => p.copyWith(experience: newExperience));
+
+  /// Update gender
+  Future<void> updateGender(String newGender) async =>
+      updateProfile((p) => p.copyWith(gender: newGender));
+
+  /* --------------------- Weight History --------------------- */
+
+  /// Add a new weight entry with timestamp
+  Future<void> addWeightEntry(double weight, {DateTime? date}) async {
+    final now = date ?? DateTime.now();
+    await updateProfile((p) => p.copyWith(
+          weightHistory: [
+            ...p.weightHistory,
+            WeightEntry(date: now, weight: weight),
+          ],
+        ));
   }
 
-  /// Update just the weight field
-  Future<void> updateWeight(double newWeight) async {
-    final currentUser = box.get('current_user');
-    if (currentUser != null) {
-      final updatedUser = currentUser.copyWith(weight: newWeight);
-      await box.put('current_user', updatedUser);
-    }
+  /// Get the latest weight (if any)
+  double? getLatestWeight() {
+    final profile = getFromLocal();
+    if (profile == null || profile.weightHistory.isEmpty) return null;
+    return profile.weightHistory.last.weight;
   }
 
-  /// Update just the targetWeight field
-  Future<void> updateTargetWeight(double newtargetWeight) async {
-    final currentUser = box.get('current_user');
-    if (currentUser != null) {
-      final updatedUser = currentUser.copyWith(targetWeight: newtargetWeight);
-      await box.put('current_user', updatedUser);
-    }
+  /// Remove the last recorded weight
+  Future<void> removeLastWeightEntry() async {
+    await updateProfile((p) => p.copyWith(
+          weightHistory: p.weightHistory.isNotEmpty
+              ? p.weightHistory.sublist(0, p.weightHistory.length - 1)
+              : [],
+        ));
   }
 
-  /// Update just the experience field
-  Future<void> updateExperience(String newEperience) async {
-    final currentUser = box.get('current_user');
-    if (currentUser != null) {
-      final updatedUser = currentUser.copyWith(experience: newEperience);
-      await box.put('current_user', updatedUser);
-    }
+  /// Clear all weight history
+  Future<void> clearWeightHistory() async {
+    await updateProfile((p) => p.copyWith(weightHistory: []));
   }
 
-  Future<void> updateGender(String newGender) async {
-    final currentUser = box.get('current_user');
-    if (currentUser != null) {
-      final updatedUser = currentUser.copyWith(gender: newGender);
-      await box.put('current_user', updatedUser);
-    }
-  }
+  /* --------------------- Reactivity --------------------- */
 
   /// Get a ValueListenable that emits the current user profile
   ValueListenable<UserProfile?> getProfileListenable() {
@@ -105,7 +113,8 @@ class UserProfileService {
   }
 }
 
-/// Extension to transform a Box listenable into a typed ValueListenable
+/* --------------------- Helper Extension --------------------- */
+
 extension BoxListenHelper<T> on ValueListenable<Box<T>> {
   ValueListenable<R> mapValue<R>(R Function(Box<T> box) transformer) {
     final notifier = ValueNotifier<R>(transformer(value));

@@ -40,7 +40,7 @@ class _BmiCardState extends State<BmiCard> {
 
   Future<void> calculateParameters() async {
     height = widget.userProfile.height;
-    weight = widget.userProfile.weight;
+    weight = widget.userProfile.weightHistory.last.weight;
     target = widget.userProfile.targetWeight;
     calculateBMI();
   }
@@ -58,7 +58,7 @@ class _BmiCardState extends State<BmiCard> {
         setState(() => height = newParameter);
         break;
       case 'Weight':
-        await widget.userProfileService.updateWeight(newParameter);
+        await widget.userProfileService.addWeightEntry(newParameter);
         setState(() => weight = newParameter);
         break;
       case 'Target':

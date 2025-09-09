@@ -1,4 +1,3 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:hive/hive.dart';
 
 part 'user_profile_model.g.dart';
@@ -11,8 +10,9 @@ class UserProfile extends HiveObject {
   @HiveField(1)
   final double height;
 
+  // 👇 Now a list of weight entries instead of a single double
   @HiveField(2)
-  final double weight;
+  final List<WeightEntry> weightHistory;
 
   @HiveField(5)
   final double? targetWeight;
@@ -26,28 +26,34 @@ class UserProfile extends HiveObject {
   UserProfile({
     required this.name,
     required this.height,
-    required this.weight,
+    required this.weightHistory,
     required this.experience,
     required this.gender,
     this.targetWeight,
   });
 
-  // For syncing with Firebase later
   factory UserProfile.fromMap(Map<String, dynamic> map) {
     return UserProfile(
       name: map['name'] ?? '',
       height: (map['height'] ?? 0).toDouble(),
-      weight: (map['weight'] ?? 0).toDouble(),
+      weightHistory: (map['weightHistory'] as List<dynamic>? ?? [])
+          .map(
+            (e) => WeightEntry(
+              date: DateTime.parse(e['date']),
+              weight: (e['weight'] as num).toDouble(),
+            ),
+          )
+          .toList(),
       experience: map['experience'] ?? '',
       gender: map['gender'] ?? '',
-      targetWeight: map['targetWeight'],
+      targetWeight: (map['targetWeight'] as num?)?.toDouble(),
     );
   }
 
   UserProfile copyWith({
     String? name,
     double? height,
-    double? weight,
+    List<WeightEntry>? weightHistory,
     String? experience,
     String? gender,
     double? targetWeight,
@@ -55,7 +61,7 @@ class UserProfile extends HiveObject {
     return UserProfile(
       name: name ?? this.name,
       height: height ?? this.height,
-      weight: weight ?? this.weight,
+      weightHistory: weightHistory ?? this.weightHistory,
       experience: experience ?? this.experience,
       gender: gender ?? this.gender,
       targetWeight: targetWeight ?? this.targetWeight,
@@ -66,9 +72,31 @@ class UserProfile extends HiveObject {
     return {
       'name': name,
       'height': height,
-      'weight': weight,
+      'weightHistory': weightHistory
+          .map(
+            (entry) => {
+              'date': entry.date.toIso8601String(),
+              'weight': entry.weight,
+            },
+          )
+          .toList(),
       'experience': experience,
+      'gender': gender,
       'targetWeight': targetWeight,
     };
   }
+}
+
+@HiveType(typeId: 6)
+class WeightEntry {
+  @HiveField(0)
+  final DateTime date;
+
+  @HiveField(1)
+  final double weight;
+
+  WeightEntry({
+    required this.date,
+    required this.weight,
+  });
 }

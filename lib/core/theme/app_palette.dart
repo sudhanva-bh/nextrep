@@ -42,7 +42,7 @@ class AppPalette {
   // Utility Colors
   static const Color outline = Color(0xFF2C2C2C); // Borders/dividers
   static const Color outlineEnabled = Color(
-    0xFF5E5E5E,
+    0xFFA0A0A0,
   ); // Borders/dividers Enabled
   static const Color disabled = Color(0xFF3A3A3A); // Disabled buttons, icons
   static const Color shadow = Color(0xFF000000); // Shadows with opacity

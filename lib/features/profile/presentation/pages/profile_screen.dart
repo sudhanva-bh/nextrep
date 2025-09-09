@@ -1,12 +1,17 @@
+// FILE: lib/pages/profile_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:nextrep/auth_wrapper.dart';
 import 'package:nextrep/core/common/utils/show_snackbar.dart';
 import 'package:nextrep/core/entities/user/user_profile_model.dart';
 import 'package:nextrep/core/services/user_profile/profile_sync_service.dart';
 import 'package:nextrep/core/services/user_profile/user_profile_service.dart';
-import 'package:nextrep/core/theme/app_palette.dart';
 import 'package:nextrep/features/auth/data/auth_service.dart';
 import 'package:nextrep/features/home/presentation/widgets/bmi/bmi_card.dart';
+import 'package:nextrep/features/profile/presentation/widgets/profile_action_row.dart';
+import 'package:nextrep/features/profile/presentation/widgets/profile_detail_tile.dart';
+import 'package:nextrep/features/profile/presentation/widgets/profile_header.dart';
+import 'package:nextrep/features/profile/presentation/widgets/profile_section_card.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -22,6 +27,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
   bool _isEditing = false;
   bool _isSyncing = false;
+  bool _isSaving = false;
+  bool _hasChanges = false;
+
+  DateTime? _lastSynced;
 
   // Controllers for the text fields in edit mode
   late final TextEditingController _nameController;
@@ -32,6 +41,9 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     super.initState();
     _nameController = TextEditingController();
+    _nameController.addListener(() {
+      if (_isEditing) setState(() => _hasChanges = true);
+    });
   }
 
   @override
@@ -44,10 +56,10 @@ class _ProfilePageState extends State<ProfilePage> {
     if (profile == null) return;
     setState(() {
       _isEditing = !_isEditing;
+      _hasChanges = false;
       if (_isEditing) {
         _nameController.text = profile.name;
 
-        // Normalize values to match dropdown items
         final validExperiences = ['Beginner', 'Intermediate', 'Advanced'];
         final validGenders = ['Male', 'Female', 'Other', 'Prefer not to say'];
 
@@ -63,19 +75,36 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _saveProfileChanges() async {
-    final newName = _nameController.text;
-    if (newName.isNotEmpty) {
-      await _profileService.updateName(newName);
-    }
-    if (_selectedExperience != null) {
-      await _profileService.updateExperience(_selectedExperience!);
-    }
-    if (_selectedGender != null) {
-      await _profileService.updateGender(_selectedGender!);
+    if (!_hasChanges) {
+      showSnackBar(context, 'No changes to save.');
+      setState(() => _isEditing = false);
+      return;
     }
 
-    showSnackBar(context, 'Profile updated successfully!');
-    setState(() => _isEditing = false);
+    setState(() => _isSaving = true);
+
+    try {
+      final newName = _nameController.text.trim();
+      if (newName.isNotEmpty) {
+        await _profileService.updateName(newName);
+      }
+      if (_selectedExperience != null) {
+        await _profileService.updateExperience(_selectedExperience!);
+      }
+      if (_selectedGender != null) {
+        await _profileService.updateGender(_selectedGender!);
+      }
+
+      showSnackBar(context, 'Profile updated successfully!');
+      setState(() {
+        _isEditing = false;
+        _hasChanges = false;
+      });
+    } catch (e) {
+      showSnackBar(context, 'Failed to save profile: $e');
+    } finally {
+      setState(() => _isSaving = false);
+    }
   }
 
   Future<void> _handleSync() async {
@@ -85,8 +114,13 @@ class _ProfilePageState extends State<ProfilePage> {
       final result = await _syncService.syncProfileOnCommand(uid);
       result.fold(
         (failure) => showSnackBar(context, 'Sync failed: ${failure.message}'),
-        (_) => showSnackBar(context, 'Profile synced with cloud!'),
+        (_) {
+          _lastSynced = DateTime.now();
+          showSnackBar(context, 'Profile synced with cloud!');
+        },
       );
+    } else {
+      showSnackBar(context, 'Not signed in.');
     }
     setState(() => _isSyncing = false);
   }
@@ -128,6 +162,22 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  String capitalize(String input) {
+    if (input.isEmpty) return input;
+    return input[0].toUpperCase() + input.substring(1).toLowerCase();
+  }
+
+  String _formatLastSynced() {
+    if (_lastSynced == null) return 'Never backed up';
+    final dt = _lastSynced!.toLocal();
+    final y = dt.year.toString();
+    final m = dt.month.toString().padLeft(2, '0');
+    final d = dt.day.toString().padLeft(2, '0');
+    final hh = dt.hour.toString().padLeft(2, '0');
+    final mm = dt.minute.toString().padLeft(2, '0');
+    return '$y-$m-$d $hh:$mm';
+  }
+
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<UserProfile?>(
@@ -138,66 +188,30 @@ class _ProfilePageState extends State<ProfilePage> {
         }
 
         return Scaffold(
+          // Removed edit / sync actions from the AppBar
           body: CustomScrollView(
             slivers: [
               SliverAppBar(
-                expandedHeight: 200,
+                expandedHeight: 180,
                 pinned: true,
-                flexibleSpace: FlexibleSpaceBar(
-                  centerTitle: false,
-                  titlePadding: const EdgeInsets.only(left: 24, bottom: 16),
-                  title: Text(
-                    _isEditing ? 'Edit Profile' : profile.name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 24,
-                    ),
-                  ),
+                flexibleSpace: ProfileHeader(
+                  title: _isEditing ? 'Edit Profile' : profile.name,
+                  subtitle: 'Last backup: ${_formatLastSynced()}',
                 ),
-                actions: [
-                  if (_isEditing)
-                    IconButton(
-                      icon: const Icon(Icons.save),
-                      tooltip: 'Save',
-                      onPressed: _saveProfileChanges,
-                    )
-                  else
-                    IconButton(
-                      icon: const Icon(Icons.edit),
-                      tooltip: 'Edit',
-                      onPressed: () => _toggleEditMode(profile),
-                    ),
-                  IconButton(
-                    icon: _isSyncing
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Icon(Icons.cloud_sync),
-                    tooltip: 'Sync with Cloud',
-                    onPressed: _isSyncing ? null : _handleSync,
-                  ),
-                ],
               ),
               SliverPadding(
                 padding: const EdgeInsets.all(16),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
-                    // --- BMI Card Section ---
                     BmiCard(
                       userProfile: profile,
                       userProfileService: _profileService,
                     ),
                     const SizedBox(height: 16),
-                    // --- Fitness Profile Section ---
-                    _ProfileSectionCard(
+                    ProfileSectionCard(
                       title: 'Fitness Profile',
                       children: [
-                        _ProfileDetailTile(
+                        ProfileDetailTile(
                           icon: Icons.bar_chart,
                           label: 'Experience',
                           value: profile.experience,
@@ -208,18 +222,20 @@ class _ProfilePageState extends State<ProfilePage> {
                                 .map(
                                   (e) => DropdownMenuItem(
                                     value: e,
-                                    child: Text(e),
+                                    child: Text(capitalize(e)),
                                   ),
                                 )
                                 .toList(),
-                            onChanged: (value) =>
-                                setState(() => _selectedExperience = value),
+                            onChanged: (value) => setState(() {
+                              _selectedExperience = value;
+                              _hasChanges = true;
+                            }),
                           ),
                         ),
-                        _ProfileDetailTile(
+                        ProfileDetailTile(
                           icon: Icons.person_outline,
                           label: 'Gender',
-                          value: profile.gender,
+                          value: capitalize(profile.gender),
                           isEditing: _isEditing,
                           child: DropdownButtonFormField<String>(
                             value: _selectedGender,
@@ -228,32 +244,30 @@ class _ProfilePageState extends State<ProfilePage> {
                                     .map(
                                       (e) => DropdownMenuItem(
                                         value: e,
-                                        child: Text(e),
+                                        child: Text(capitalize(e)),
                                       ),
                                     )
                                     .toList(),
-                            onChanged: (value) =>
-                                setState(() => _selectedGender = value),
+                            onChanged: (value) => setState(() {
+                              _selectedGender = value;
+                              _hasChanges = true;
+                            }),
                           ),
+                        ),
+                        const SizedBox(height: 12),
+                        ProfileActionRow(
+                          isEditing: _isEditing,
+                          isSaving: _isSaving,
+                          isSyncing: _isSyncing,
+                          hasChanges: _hasChanges,
+                          onEditToggle: () => _toggleEditMode(profile),
+                          onSave: _saveProfileChanges,
+                          onSync: _handleSync,
+                          onLogout: _handleLogout,
                         ),
                       ],
                     ),
                     const SizedBox(height: 24),
-                    // --- Logout Button ---
-                    ElevatedButton.icon(
-                      onPressed: _handleLogout,
-                      icon: const Icon(Icons.logout),
-                      label: const Text('Logout and Sync'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppPalette.primary,
-                        foregroundColor: AppPalette.onPrimary,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        textStyle: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
                   ]),
                 ),
               ),
@@ -261,75 +275,6 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         );
       },
-    );
-  }
-}
-
-// --- Helper Widgets ---
-
-class _ProfileSectionCard extends StatelessWidget {
-  final String title;
-  final List<Widget> children;
-  const _ProfileSectionCard({required this.title, required this.children});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: Theme.of(context).textTheme.titleLarge),
-            const Divider(height: 24),
-            ...children,
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ProfileDetailTile extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final bool isEditing;
-  final Widget child;
-
-  const _ProfileDetailTile({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.isEditing,
-    required this.child,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          Icon(icon, color: AppPalette.primary, size: 24),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label, style: Theme.of(context).textTheme.bodySmall),
-                const SizedBox(height: 2),
-                if (isEditing)
-                  child
-                else
-                  Text(value, style: Theme.of(context).textTheme.titleMedium),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

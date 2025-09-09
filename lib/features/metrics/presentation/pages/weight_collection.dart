@@ -36,7 +36,7 @@ class _WeightCollectionState extends State<WeightCollection> {
 
   Future<void> continueToExperienceCollection() async {
     final cloudService = UserProfileService();
-    await cloudService.updateWeight(weight);
+    await cloudService.addWeightEntry(weight);
     NavigateWithPush(context, ExperienceCollection());
   }
 
