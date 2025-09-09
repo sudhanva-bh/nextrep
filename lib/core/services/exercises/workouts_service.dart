@@ -30,7 +30,9 @@ class WorkoutsService {
   /// Updates an existing [Workout] in Hive.
   /// If the workout does not exist, this will add it as new.
   Future<void> updateWorkout(Workout workout) async {
+    print(box.get(workout.workoutName));
     await box.put(workout.workoutName, workout);
+    print("Updated: ${box.get(workout.workoutName)}");
   }
 
   /// Uploads a new [Workout] to Hive if it doesn't already exist.
@@ -50,7 +52,6 @@ class WorkoutsService {
   }
 
   Future<void> putPresetWorkouts() async {
-    await box.clear();
     if (box.isEmpty) {
       for (final workout in PresetWorkouts.workouts) {
         await box.put(workout.workoutName, workout);
