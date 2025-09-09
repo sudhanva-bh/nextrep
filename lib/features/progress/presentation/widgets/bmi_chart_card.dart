@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:nextrep/core/common/utils/bmi_calculator.dart';
 import 'package:nextrep/core/constants/widget_properties.dart';
@@ -253,7 +252,7 @@ class _BmiChartCardState extends State<BmiChartCard> {
             );
 
             final weight = entry.weight;
-            final height = widget.profile.height;
+            // final height = widget.profile.height;
 
             return LineTooltipItem(
               '$formattedDate\n',
@@ -285,7 +284,7 @@ class _BmiChartCardState extends State<BmiChartCard> {
       show: true,
       drawVerticalLine: false,
       getDrawingHorizontalLine: (value) => FlLine(
-        color: AppPalette.lightSurface.withOpacity(0.4),
+        color: AppPalette.lightSurface.withValues(alpha: 0.4),
         strokeWidth: 1,
         dashArray: [4, 4],
       ),
@@ -299,25 +298,25 @@ class _BmiChartCardState extends State<BmiChartCard> {
         HorizontalRangeAnnotation(
           y1: _sliderAbsoluteMinY,
           y2: 18.5,
-          color: Colors.blue.withOpacity(0.4),
+          color: Colors.blue.withValues(alpha: 0.4),
         ),
         // Healthy (18.5-24.9): Green
         HorizontalRangeAnnotation(
           y1: 18.5,
           y2: 24.9,
-          color: Colors.green.withOpacity(0.4),
+          color: Colors.green.withValues(alpha: 0.4),
         ),
         // Overweight (25-29.9): Orange
         HorizontalRangeAnnotation(
           y1: 25,
           y2: 29.9,
-          color: Colors.orange.withOpacity(0.4),
+          color: Colors.orange.withValues(alpha: 0.4),
         ),
         // Obese (>30): Red
         HorizontalRangeAnnotation(
           y1: 30,
           y2: _sliderAbsoluteMaxY,
-          color: Colors.red.withOpacity(0.4),
+          color: Colors.red.withValues(alpha: 0.4),
         ),
       ],
     );

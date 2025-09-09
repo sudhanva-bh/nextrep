@@ -61,7 +61,7 @@ class CurrentBmiCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               boxShadow: WidgetProperties.subtleDropShadow,
-              color: info.color.withOpacity(0.15),
+              color: info.color.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
