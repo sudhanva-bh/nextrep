@@ -7,7 +7,6 @@ import 'package:nextrep/auth_wrapper.dart';
 import 'package:nextrep/core/services/hive_init_service.dart';
 import 'package:nextrep/core/services/user_profile/user_profile_service.dart';
 import 'package:nextrep/core/theme/theme.dart';
-import 'package:nextrep/features/auth/data/auth_service.dart';
 import 'package:nextrep/firebase_options.dart';
 
 void main() async {
@@ -30,6 +29,9 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+
+  UserProfileService().clearWeightHistory();
+  UserProfileService().addWeightEntry(74.2);
 
   runApp(
     ProviderScope(
