@@ -10,7 +10,6 @@ class UserProfile extends HiveObject {
   @HiveField(1)
   final double height;
 
-  // 👇 Now a list of weight entries instead of a single double
   @HiveField(2)
   final List<WeightEntry> weightHistory;
 
@@ -23,6 +22,9 @@ class UserProfile extends HiveObject {
   @HiveField(4)
   final String gender;
 
+  @HiveField(6)
+  final bool isNewUser;
+
   UserProfile({
     required this.name,
     required this.height,
@@ -30,6 +32,7 @@ class UserProfile extends HiveObject {
     required this.experience,
     required this.gender,
     this.targetWeight,
+    this.isNewUser = false, // 👈 default value
   });
 
   factory UserProfile.fromMap(Map<String, dynamic> map) {
@@ -47,6 +50,7 @@ class UserProfile extends HiveObject {
       experience: map['experience'] ?? '',
       gender: map['gender'] ?? '',
       targetWeight: (map['targetWeight'] as num?)?.toDouble(),
+      isNewUser: map['isNewUser'] ?? false,
     );
   }
 
@@ -57,6 +61,7 @@ class UserProfile extends HiveObject {
     String? experience,
     String? gender,
     double? targetWeight,
+    bool? isNewUser,
   }) {
     return UserProfile(
       name: name ?? this.name,
@@ -65,6 +70,7 @@ class UserProfile extends HiveObject {
       experience: experience ?? this.experience,
       gender: gender ?? this.gender,
       targetWeight: targetWeight ?? this.targetWeight,
+      isNewUser: isNewUser ?? this.isNewUser,
     );
   }
 
@@ -83,6 +89,7 @@ class UserProfile extends HiveObject {
       'experience': experience,
       'gender': gender,
       'targetWeight': targetWeight,
+      'isNewUser': isNewUser,
     };
   }
 }

@@ -117,13 +117,11 @@ class _AuthPageState extends ConsumerState<AuthPage> {
         },
         (user) async {
           print("✅ Register success, uid: ${user.uid}");
-          print("🔍 Calling syncOnRegister...");
 
-          final syncResult = await authController.syncOnRegister(
-            user.uid,
-            name,
-          );
-          print("📌 syncOnRegister completed");
+          // MODIFIED: Call the single sync method
+          print("🔍 Calling syncOnAuth for new user...");
+          final syncResult = await authController.syncOnAuth(user.uid, name);
+          print("📌 syncOnAuth completed");
 
           setState(() {
             isLoading = false;
@@ -131,12 +129,12 @@ class _AuthPageState extends ConsumerState<AuthPage> {
 
           syncResult.fold(
             (failure) {
-              print("❌ syncOnRegister failed: ${failure.message}");
+              print("❌ syncOnAuth failed: ${failure.message}");
               showSnackBar(context, failure.message);
             },
             (_) {
               print(
-                "✅ syncOnRegister success -> Navigating to GenderCollection",
+                "✅ syncOnAuth success -> Navigating to GenderCollection",
               );
               NavigateWithFadeNoBack(context, GenderCollection());
             },
@@ -174,10 +172,15 @@ class _AuthPageState extends ConsumerState<AuthPage> {
         },
         (user) async {
           print("✅ Login success, uid: ${user.uid}");
-          print("🔍 Calling syncOnLogin...");
 
-          final syncResult = await authController.syncOnLogin(user.uid);
-          print("📌 syncOnLogin completed");
+          // MODIFIED: Call the single sync method
+          // For login, the name comes from the user object, with a fallback.
+          print("🔍 Calling syncOnAuth for existing user...");
+          final syncResult = await authController.syncOnAuth(
+            user.uid,
+            user.displayName ?? 'User',
+          );
+          print("📌 syncOnAuth completed");
 
           setState(() {
             isLoading = false;
@@ -185,11 +188,11 @@ class _AuthPageState extends ConsumerState<AuthPage> {
 
           syncResult.fold(
             (failure) {
-              print("❌ syncOnLogin failed: ${failure.message}");
+              print("❌ syncOnAuth failed: ${failure.message}");
               showSnackBar(context, failure.message);
             },
             (_) {
-              print("✅ syncOnLogin success -> Navigating to HomePage");
+              print("✅ syncOnAuth success -> Navigating to HomePage");
               NavigateWithFadeNoBack(context, BottomNavigatorController());
             },
           );
@@ -198,8 +201,62 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     }
   }
 
-  void continueWithGoogle() {
-    showSnackBar(context, "Coming Soon!");
+  void continueWithGoogle() async {
+    // No form validation is needed for Google Sign-In.
+    print("🚀 Initiating Google Sign-In flow");
+
+    setState(() {
+      isLoading = true;
+    });
+
+    final authController = ref.read(authControllerProvider);
+    print("🔍 Calling controller.signInWithGoogle...");
+
+    // 1. Attempt to sign in with Google
+    final authResult = await authController.signInWithGoogle();
+    print("📌 controller.signInWithGoogle completed");
+
+    authResult.fold(
+      (failure) {
+        // --- HANDLE AUTHENTICATION FAILURE ---
+        print("❌ Google Sign-In failed: ${failure.message}");
+        setState(() {
+          isLoading = false;
+        });
+        showSnackBar(context, failure.message);
+      },
+      (user) async {
+        // --- HANDLE AUTHENTICATION SUCCESS ---
+        print("✅ Google Sign-In success, uid: ${user.uid}");
+        print("🔍 Calling controller.syncOnAuth for Google user...");
+
+        // 2. Call the unified sync method upon successful authentication
+        final syncResult = await authController.syncOnAuth(
+          user.uid,
+          user.displayName ?? 'New User', // Get name from Google account
+        );
+        print("📌 controller.syncOnAuth completed");
+
+        // Set loading to false now that all backend tasks are done
+        setState(() {
+          isLoading = false;
+        });
+
+        syncResult.fold(
+          (failure) {
+            // --- HANDLE SYNC FAILURE ---
+            print("❌ syncOnAuth failed: ${failure.message}");
+            showSnackBar(context, failure.message);
+          },
+          (_) {
+            // --- HANDLE SYNC SUCCESS ---
+            print("✅ syncOnAuth success -> Navigating to HomePage");
+            // Navigate to the main app screen for both new and returning users
+            NavigateWithFadeNoBack(context, BottomNavigatorController());
+          },
+        );
+      },
+    );
   }
 
   void continueWithApple() {

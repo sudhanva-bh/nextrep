@@ -14,7 +14,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "808078870152-ck2inoa8vljomrs72d39gt3shdvdfusq.apps.googleusercontent.com",
+          "client_id": "808078870152-1j7ibplio8fdvghi9i6gul6im8cceu9v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.nextrep",
+            "certificate_hash": "878451b6c8cf906cadbe067c8591bdb8f4aee111"
+          }
+        },
+        {
+          "client_id": "808078870152-erd7ct05vmdqem342dv16cplm3rvhalg.apps.googleusercontent.com",
           "client_type": 3
         }
       ],

@@ -33,15 +33,15 @@ class AuthController {
     return _authService.signOut();
   }
 
-  Future<Either<Failure, Unit>> syncOnLogin(String uid) async {
-    return await _profileSyncService.syncProfileOnLogin(uid);
-  }
-  
-  Future<Either<Failure, Unit>> syncOnRegister(String uid, String name) async {
-    return await _profileSyncService.syncProfileOnRegister(uid, name);
+  Future<Either<Failure, Unit>> syncOnAuth(String uid, String name) async {
+    return await _profileSyncService.syncOnUserAuthenticated(uid, name);
   }
 
   Future<Either<Failure, Unit>> syncOnLogout(String uid) async {
     return await _profileSyncService.syncProfileOnLogout(uid);
+  }
+
+  Future<Either<Failure, User>> signInWithGoogle() async {
+    return await _authService.googleSignInService();
   }
 }
