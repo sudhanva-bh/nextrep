@@ -21,7 +21,7 @@ class AuthService {
         email: email,
         password: password,
       );
-      await AuthPrefs.setLoggedIn(true);
+      await AuthPrefs.hasLoggedIn();
       return right(result.user!);
     } on FirebaseAuthException catch (e) {
       return left(Failure(e.message ?? "Login failed"));
@@ -40,7 +40,7 @@ class AuthService {
         email: email,
         password: password,
       );
-      await AuthPrefs.setLoggedIn(true);
+      await AuthPrefs.hasLoggedIn();
       return right(result.user!);
     } on FirebaseAuthException catch (e) {
       return left(Failure(e.message ?? "Registration failed"));
@@ -84,7 +84,7 @@ class AuthService {
       final UserCredential result = await _auth.signInWithCredential(
         credential,
       );
-      await AuthPrefs.setLoggedIn(true);
+      await AuthPrefs.hasLoggedIn();
       return right(result.user!);
     } on FirebaseAuthException catch (e) {
       return left(Failure(e.message ?? "Registration failed"));
@@ -98,7 +98,7 @@ class AuthService {
     try {
       await _googleSignIn.signOut();
       await _auth.signOut();
-      await AuthPrefs.setLoggedIn(false);
+      await AuthPrefs.hasLoggedOut();
       return right(unit);
     } catch (e) {
       return left(Failure(e.toString()));

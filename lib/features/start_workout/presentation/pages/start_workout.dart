@@ -9,6 +9,7 @@ import 'package:nextrep/core/entities/workout/workout.dart';
 import 'package:nextrep/core/services/exercises/exercise_raw_data_service.dart';
 import 'package:nextrep/core/theme/app_palette.dart';
 import 'package:nextrep/features/edit_workout/presentation/pages/add_exercise/add_exercise.dart';
+import 'package:nextrep/features/start_workout/presentation/pages/ai_assistant_popup.dart';
 import 'package:nextrep/features/start_workout/presentation/widgets/current_workout.dart';
 import 'package:nextrep/features/start_workout/presentation/widgets/end_workout_dialog.dart';
 import 'package:nextrep/features/start_workout/presentation/widgets/exercise_session_card.dart';
@@ -266,11 +267,25 @@ class _StartWorkoutState extends ConsumerState<StartWorkout> {
       },
       child: Scaffold(
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: FloatingActionButton.extended(
-          // Call the new, cleaner function
-          onPressed: _endWorkout,
-          icon: const Icon(Icons.stop_circle_outlined),
-          label: const Text('End Workout'),
+        floatingActionButton: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            FloatingActionButton(
+              heroTag: 'ai_fab',
+              onPressed: () => AIAssistantPopup.show(
+                context,
+                exercise: _currentExercise,
+              ),
+              child: const Icon(Icons.auto_awesome),
+            ),
+            FloatingActionButton.extended(
+              heroTag: 'end_workout_fab',
+              onPressed: _endWorkout,
+              icon: const Icon(Icons.stop_circle_outlined),
+              label: const Text('End Workout'),
+            ),
+          ],
         ),
         body: CustomScrollView(
           controller: _scrollController,
