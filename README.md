@@ -1,4 +1,4 @@
-# NextRep – Gym Tracker App  
+# NextRep - Gym Tracker App  
 
 NextRep is a modern gym/workout tracker app built with **Flutter**, following **Clean Architecture** principles.  
 It combines a huge exercise database, smart workout tracking, and seamless cloud/local sync to help you stay on top of your fitness journey.  
@@ -9,18 +9,19 @@ It combines a huge exercise database, smart workout tracking, and seamless cloud
 
 Prioritized by importance:  
 
-1.  **Sign In / Authentication** – Secure login with Firebase Auth & Google Sign-In  
-2. **Huge Database** – 2000+ workouts with images, instructions & descriptions  
-3. **Clean Architecture** – Scalable, modular project structure with Riverpod & fpdart for error handling  
-4. **Firebase + Hive Integration** – Firestore for cloud sync & Hive for local offline storage, with automatic sync on Login, Register and Logout
-5. **Dynamic Workout Adjustments** – Smartly adapts Today’s Workout plan  
-6. **BMI Calculation & Target Weight** – Personalized stats and goals  
-7. **Target Muscle API** – Custom-built API to generate muscles worked by each exercise  
-8. **Favourite Workouts** – Save your most-used exercises  
-9. **Challenges** – Gamified challenges to push your limits  
-10. **Start Workout** – Track sets with reps and weights  
-11. **Edit Workouts** – Customize workout plans on the go  
-12. **Progress Indicator** *(Coming Soon)* – Visualize your fitness journey  
+1.  **AI-Powered Workout Assistant** - Get instant, intelligent help and form corrections for any exercise using integrated **Generative AI**.
+2.  **Seamless Cloud & Offline Sync** - Combines **Firebase Firestore** for cloud storage and **Hive** for local offline access, with automatic data synchronization on login, registration, and logout.
+3.  **Custom-Built Target Muscle API** - Features a unique, custom-built API that dynamically generates the specific muscles worked by each exercise.
+4.  **BMI Visualiser** - Interactive graph for daily weight entry, and visualisation.
+5.  **Clean, Scalable Architecture** - Built on a professional, modular project structure using **Riverpod** for robust state management and `fpdart` for flawless error handling.
+6.  **Dynamic Workout Adjustments** - Smartly adapts your daily workout plan based on your progress and performance.
+7.  **Massive Exercise Database** - Includes a comprehensive library of over 2000+ exercises, complete with high-quality images, detailed instructions, and descriptions.
+8.  **Secure Authentication with Google Sign-In** - Offers fast and secure user login and registration using **Firebase Authentication** and one-tap Google Sign-In.
+9.  **Fitness Challenges** - Engage with fun, challenges designed to test your limits and keep you motivated.
+10.  **Live Workout Tracking & Editing** - Easily track your sets, reps, and weights during a session and customize your workout plan on the go.
+11. **Personalized Stats & Goal Setting** - Calculate your BMI, set target weight goals, and track your personal fitness statistics.
+12. **Favorite Workouts** - Quickly save and access your most-used exercises for convenient workout planning.
+13. **Visual Progress Indicator** *(Coming Soon)* - A dedicated feature to visualize your fitness journey and track your gains over time.
 
 ---
 
@@ -31,7 +32,7 @@ Coming Soon
 ---
 
 ##  Setup Instructions  
-Download the [APK](https://github.com/sudhanva-bh/nextrep/releases/tag/v1.0.1) here or
+Download the APK through the [Latest Release](https://github.com/sudhanva-bh/nextrep/releases) here or
 
 ### 1. Clone the repository  
 ```bash
@@ -60,7 +61,3 @@ flutter pub get
 ```bash
 flutter run
 ```
-
-
-
-
