@@ -98,7 +98,7 @@ class _AIAssistantViewState extends State<AIAssistantView> {
 
   void _startCooldown() {
     setState(() {
-      _remainingCooldown = 30;
+      _remainingCooldown = 15;
     });
 
     _cooldownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
