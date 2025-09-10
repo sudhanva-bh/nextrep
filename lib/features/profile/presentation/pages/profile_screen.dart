@@ -153,12 +153,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       final uid = _authService.currentUser!.uid;
       await _syncService.syncProfileOnLogout(uid);
       await _authService.signOut();
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => AuthWrapper(),
-        ),
-      );
 
       if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(
