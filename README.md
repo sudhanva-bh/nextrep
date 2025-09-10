@@ -7,8 +7,6 @@ It combines a huge exercise database, smart workout tracking, and seamless cloud
 
 ## Features  
 
-Prioritized by importance:  
-
 1.  **AI-Powered Workout Assistant** - Get instant, intelligent help and form corrections for any exercise using integrated **Generative AI**.
 2.  **Seamless Cloud & Offline Sync** - Combines **Firebase Firestore** for cloud storage and **Hive** for local offline access, with automatic data synchronization on login, registration, and logout.
 3.  **Custom-Built Target Muscle API** - Features a unique, custom-built API that dynamically generates the specific muscles worked by each exercise.
