@@ -39,8 +39,31 @@ class _WeightCollectionState extends ConsumerState<WeightCollection> {
     NavigateWithPush(context, const ExperienceCollection());
   }
 
-  void skipToHome() {
-    NavigateWithPush(context, const BottomNavigatorController());
+  void skipToHome(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Warning"),
+        content: const Text(
+          "Are you sure you want to skip? You may face errors if data has not been entered correctly.",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              NavigateWithPush(context, const BottomNavigatorController());
+            },
+            child: const Text("Yes, Skip"),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -51,7 +74,7 @@ class _WeightCollectionState extends ConsumerState<WeightCollection> {
 
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: skipToHome, // Call your function here
+        onPressed: () => skipToHome(context),
         label: const Text("Skip"), // The text on the button
         icon: const Icon(Icons.arrow_forward), // Optional icon
       ),

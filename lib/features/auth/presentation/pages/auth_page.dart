@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nextrep/auth_wrapper.dart';
 import 'package:nextrep/bottom_navigator_controller.dart';
 import 'package:nextrep/core/common/utils/loader.dart';
 import 'package:nextrep/core/common/utils/show_snackbar.dart';

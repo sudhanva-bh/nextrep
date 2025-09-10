@@ -9,7 +9,6 @@ import 'package:nextrep/features/metrics/presentation/pages/weight_collection.da
 import 'package:nextrep/features/metrics/presentation/widget_helpers/height_screen/cm_height_widget.dart';
 import 'package:nextrep/features/metrics/presentation/widget_helpers/height_screen/inches_height_widget.dart';
 import 'package:nextrep/features/metrics/presentation/widget_helpers/unit_switcher.dart';
-import 'package:nextrep/core/services/user_profile/user_profile_service.dart';
 
 enum Units { cm, inch }
 
@@ -40,8 +39,31 @@ class _HeightCollectionState extends ConsumerState<HeightCollection> {
     NavigateWithPush(context, const WeightCollection());
   }
 
-  void skipToHome() {
-    NavigateWithPush(context, const BottomNavigatorController());
+  void skipToHome(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Warning"),
+        content: const Text(
+          "Are you sure you want to skip? You may face errors if data has not been entered correctly.",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              NavigateWithPush(context, const BottomNavigatorController());
+            },
+            child: const Text("Yes, Skip"),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -52,9 +74,9 @@ class _HeightCollectionState extends ConsumerState<HeightCollection> {
 
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: skipToHome,           // Call your function here
-        label: const Text("Skip"),       // The text on the button
-        icon: const Icon(Icons.arrow_forward), // Optional icon
+        onPressed: () => skipToHome(context),
+        label: const Text("Skip"),
+        icon: const Icon(Icons.arrow_forward),
       ),
       appBar: AppBar(),
       body: SafeArea(
