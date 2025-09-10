@@ -85,10 +85,7 @@ class _HomePageState extends ConsumerState<HomeScreen> {
                     ),
                   ),
                   SizedBox(height: 14),
-                  BmiCard(
-                    userProfile: currentUserProfile,
-                    userProfileService: userProfileService,
-                  ),
+                  BmiCard(),
                   SizedBox(height: 14),
                 ],
               ),

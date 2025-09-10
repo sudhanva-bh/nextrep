@@ -1,100 +1,176 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nextrep/core/common/providers.dart';
 import 'package:nextrep/core/constants/widget_properties.dart';
 import 'package:nextrep/core/entities/user/user_profile_model.dart';
-import 'package:nextrep/core/services/user_profile/user_profile_service.dart';
 import 'package:nextrep/core/theme/app_palette.dart';
 import 'package:nextrep/features/home/presentation/widgets/bmi/bmi_slider.dart';
 import 'package:nextrep/features/home/presentation/widgets/bmi/bmi_tile.dart';
 
-class BmiCard extends StatefulWidget {
-  const BmiCard({
-    super.key,
-    required this.userProfile,
-    required this.userProfileService,
-  });
-
-  final UserProfile userProfile;
-  final UserProfileService userProfileService;
+// Convert to a ConsumerWidget to access providers
+class BmiCard extends ConsumerWidget {
+  const BmiCard({super.key});
 
   @override
-  State<BmiCard> createState() => _BmiCardState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Get the UserProfileService from the provider
+    final userProfileService = ref.watch(userProfileServiceProvider);
 
-class _BmiCardState extends State<BmiCard> {
-  late double bmi;
-  late double? targetBmi;
-  late double height;
-  late double weight;
-  late double? target;
+    // Use ValueListenableBuilder to listen for changes in the user profile
+    return ValueListenableBuilder<UserProfile?>(
+      valueListenable: userProfileService.getProfileListenable(),
+      builder: (context, userProfile, _) {
+        // If profile doesn't exist, show an empty container or a loading state
+        if (userProfile == null) {
+          return const SizedBox(
+            height: 210,
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
 
-  Future<void> calculateParameters() async {
-  // Assign values safely
-  height = widget.userProfile.height;
-  weight = widget.userProfile.weightHistory.isNotEmpty
-      ? widget.userProfile.weightHistory.last.weight
-      : 0;
-  target = widget.userProfile.targetWeight;
+        // --- All calculations are now done directly inside the builder ---
+        final height = userProfile.height;
+        final weight = userProfile.weightHistory.isNotEmpty
+            ? userProfile.weightHistory.last.weight
+            : 0.0;
+        final target = userProfile.targetWeight;
 
-  calculateBMI();
-}
+        double bmi = 0;
+        double? targetBmi;
 
-void calculateBMI() {
-  // Check for invalid height
-  if (height <= 0 || weight <= 0) {
-    bmi = 0;
-    targetBmi = null;
-    return;
+        if (height > 0 && weight > 0) {
+          final heightM = height / 100;
+          final calculatedBmi = weight / (heightM * heightM);
+          if (calculatedBmi.isFinite) {
+            bmi = calculatedBmi;
+          }
+
+          if (target != null && target > 0) {
+            final calculatedTargetBmi = target / (heightM * heightM);
+            if (calculatedTargetBmi.isFinite) {
+              targetBmi = calculatedTargetBmi;
+            }
+          }
+        }
+
+        // The UI structure remains the same
+        return Container(
+          width: double.infinity,
+          height: 210,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            boxShadow: WidgetProperties.dropShadow,
+            color: AppPalette.surface,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Body Mass Index (BMI)",
+                style: TextStyle(
+                  color: AppPalette.onSurface,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  letterSpacing: 0.6,
+                ),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                bmi.toStringAsFixed(1),
+                style: const TextStyle(
+                  color: AppPalette.onSurface,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 40,
+                  letterSpacing: 0.6,
+                  height: 1.16,
+                ),
+              ),
+              BmiSlider(
+                bmi: bmi,
+                targetBmi: targetBmi,
+              ),
+              const SizedBox(height: 12),
+              Container(
+                width: double.infinity,
+                height: 64,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppPalette.lightSurface,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    _buildBmiInputTile(
+                      context: context,
+                      parameterName: 'Height',
+                      parameterValue: height,
+                      icon: Icons.height,
+                      onSubmit: (value) =>
+                          userProfileService.updateHeight(value),
+                    ),
+                    VerticalDivider(color: AppPalette.onSurface.withAlpha(190)),
+                    _buildBmiInputTile(
+                      context: context,
+                      parameterName: 'Weight',
+                      parameterValue: weight,
+                      icon: Icons.monitor_weight_outlined,
+                      onSubmit: (value) =>
+                          userProfileService.addWeightEntry(value),
+                    ),
+                    VerticalDivider(color: AppPalette.onSurface.withAlpha(190)),
+                    _buildBmiInputTile(
+                      context: context,
+                      parameterName: 'Target',
+                      parameterValue: target,
+                      icon: Icons.adjust,
+                      onSubmit: (value) =>
+                          userProfileService.updateTargetWeight(value),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
-  double heightM = height / 100;
-
-  // BMI calculation with safety
-  double calculatedBmi = weight / (heightM * heightM);
-
-  if (calculatedBmi.isFinite) {
-    bmi = calculatedBmi;
-  } else {
-    bmi = 0;
+  // Helper widget to reduce code duplication for the input tiles
+  Widget _buildBmiInputTile({
+    required BuildContext context,
+    required String parameterName,
+    required double? parameterValue,
+    required IconData icon,
+    required Future<void> Function(double) onSubmit,
+  }) {
+    return InkWell(
+      onTap: () => _showInputDialog(
+        context: context,
+        parameterName: parameterName,
+        onSubmit: (inputText) {
+          final parsed = double.tryParse(inputText);
+          if (parsed != null) {
+            onSubmit(parsed);
+          }
+        },
+      ),
+      borderRadius: BorderRadius.circular(12),
+      child: BmiTile(
+        parameterName: parameterName,
+        parameter: parameterValue,
+        icon: icon,
+      ),
+    );
   }
 
-  // Target BMI calculation
-  if (target != null && target! > 0) {
-    double calculatedTargetBmi = target! / (heightM * heightM);
-    targetBmi = calculatedTargetBmi.isFinite ? calculatedTargetBmi : null;
-  } else {
-    targetBmi = null;
-  }
-}
-
-
-  @override
-  void initState() {
-    calculateParameters();
-    super.initState();
-  }
-
-  Future<void> onSubmit(String parameterName, double newParameter) async {
-    switch (parameterName) {
-      case 'Height':
-        await widget.userProfileService.updateHeight(newParameter);
-        setState(() => height = newParameter);
-        break;
-      case 'Weight':
-        await widget.userProfileService.addWeightEntry(newParameter);
-        setState(() => weight = newParameter);
-        break;
-      case 'Target':
-        await widget.userProfileService.updateTargetWeight(newParameter);
-        setState(() => target = newParameter);
-        break;
-    }
-    setState(() {
-      calculateBMI();
-    });
-  }
-
-  Future<void> showInputDialog({
+  // Helper method for the dialog (can be kept outside the build method)
+  Future<void> _showInputDialog({
     required BuildContext context,
     required void Function(String) onSubmit,
     required String parameterName,
@@ -111,8 +187,6 @@ void calculateBMI() {
             hintText = "in CM";
             break;
           case 'Weight':
-            hintText = "in KGs";
-            break;
           case 'Target':
             hintText = "in KGs";
             break;
@@ -121,7 +195,7 @@ void calculateBMI() {
           title: Text("Enter $parameterName"),
           content: TextField(
             controller: controller,
-            keyboardType: TextInputType.numberWithOptions(decimal: true),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
             inputFormatters: [
               FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,1}')),
             ],
@@ -148,122 +222,6 @@ void calculateBMI() {
           ],
         );
       },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: 210,
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        boxShadow: WidgetProperties.dropShadow,
-        color: AppPalette.surface,
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Body Mass Index (BMI)",
-            style: TextStyle(
-              color: AppPalette.onSurface,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              letterSpacing: 0.6,
-            ),
-          ),
-          SizedBox(height: 5),
-          Text(
-            bmi.toStringAsFixed(1),
-            style: TextStyle(
-              color: AppPalette.onSurface,
-              fontWeight: FontWeight.bold,
-              fontSize: 40,
-              letterSpacing: 0.6,
-              height: 1.16,
-            ),
-          ),
-          BmiSlider(
-            bmi: bmi,
-            targetBmi: targetBmi,
-          ),
-          SizedBox(height: 12),
-          Container(
-            width: double.infinity,
-            height: 64,
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppPalette.lightSurface,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                InkWell(
-                  onTap: () => showInputDialog(
-                    context: context,
-                    onSubmit: (inputText) {
-                      final parsed = double.tryParse(inputText);
-                      if (parsed != null) {
-                        onSubmit('Height', parsed);
-                      }
-                    },
-                    parameterName: 'Height',
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                  child: BmiTile(
-                    parameterName: 'Height',
-                    parameter: height,
-                    icon: Icons.height,
-                  ),
-                ),
-                VerticalDivider(color: AppPalette.onSurface.withAlpha(190)),
-                InkWell(
-                  onTap: () => showInputDialog(
-                    context: context,
-                    onSubmit: (inputText) {
-                      final parsed = double.tryParse(inputText);
-                      if (parsed != null) {
-                        onSubmit('Weight', parsed);
-                      }
-                    },
-                    parameterName: 'Weight',
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                  child: BmiTile(
-                    parameterName: 'Weight',
-                    parameter: weight,
-                    icon: Icons.monitor_weight_outlined,
-                  ),
-                ),
-                VerticalDivider(color: AppPalette.onSurface.withAlpha(190)),
-                InkWell(
-                  onTap: () => showInputDialog(
-                    context: context,
-                    onSubmit: (inputText) {
-                      final parsed = double.tryParse(inputText);
-                      if (parsed != null) {
-                        onSubmit('Target', parsed);
-                      }
-                    },
-                    parameterName: 'Target',
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                  child: BmiTile(
-                    parameterName: 'Target',
-                    parameter: target,
-                    icon: Icons.adjust,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

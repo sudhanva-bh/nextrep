@@ -1,12 +1,9 @@
-// FILE: lib/pages/profile_page.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nextrep/auth_wrapper.dart';
 import 'package:nextrep/core/common/providers.dart';
 import 'package:nextrep/core/common/utils/show_snackbar.dart';
 import 'package:nextrep/core/entities/user/user_profile_model.dart';
-import 'package:nextrep/core/services/shared_preferences/shared_preferences.dart';
 import 'package:nextrep/core/services/user_profile/profile_sync_service.dart';
 import 'package:nextrep/core/services/user_profile/user_profile_service.dart';
 import 'package:nextrep/features/auth/data/auth_service.dart';
@@ -213,10 +210,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 padding: const EdgeInsets.all(16),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
-                    BmiCard(
-                      userProfile: profile,
-                      userProfileService: _profileService,
-                    ),
+                    BmiCard(),
                     const SizedBox(height: 16),
                     ProfileSectionCard(
                       title: 'Fitness Profile',
