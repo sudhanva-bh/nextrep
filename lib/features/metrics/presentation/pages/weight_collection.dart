@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nextrep/bottom_navigator_controller.dart';
+import 'package:nextrep/core/common/providers.dart';
 import 'package:nextrep/core/navigation/navigate_to_classes/navigate_with_push.dart';
 import 'package:nextrep/core/theme/app_palette.dart';
 import 'package:nextrep/features/auth/presentation/widgets/continue_button.dart';
@@ -6,21 +9,17 @@ import 'package:nextrep/features/metrics/presentation/pages/experience_collectio
 import 'package:nextrep/features/metrics/presentation/widget_helpers/unit_switcher.dart';
 import 'package:nextrep/features/metrics/presentation/widget_helpers/weight_screen/kgs_weight_widget.dart';
 import 'package:nextrep/features/metrics/presentation/widget_helpers/weight_screen/lbs_weight_widget.dart';
-import 'package:nextrep/core/services/user_profile/user_profile_service.dart';
 
-enum Units {
-  kg,
-  lb,
-}
+enum Units { kg, lb }
 
-class WeightCollection extends StatefulWidget {
+class WeightCollection extends ConsumerStatefulWidget {
   const WeightCollection({super.key});
 
   @override
-  State<WeightCollection> createState() => _WeightCollectionState();
+  ConsumerState<WeightCollection> createState() => _WeightCollectionState();
 }
 
-class _WeightCollectionState extends State<WeightCollection> {
+class _WeightCollectionState extends ConsumerState<WeightCollection> {
   double weight = 81.0;
 
   int get weightToKg => weight.floor();
@@ -35,9 +34,13 @@ class _WeightCollectionState extends State<WeightCollection> {
   void setWeight(double inputWeight) => setState(() => weight = inputWeight);
 
   Future<void> continueToExperienceCollection() async {
-    final cloudService = UserProfileService();
+    final cloudService = ref.read(userProfileServiceProvider);
     await cloudService.addWeightEntry(weight);
-    NavigateWithPush(context, ExperienceCollection());
+    NavigateWithPush(context, const ExperienceCollection());
+  }
+
+  void skipToHome() {
+    NavigateWithPush(context, const BottomNavigatorController());
   }
 
   @override
@@ -47,13 +50,18 @@ class _WeightCollectionState extends State<WeightCollection> {
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: skipToHome, // Call your function here
+        label: const Text("Skip"), // The text on the button
+        icon: const Icon(Icons.arrow_forward), // Optional icon
+      ),
       appBar: AppBar(),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16),
           child: Column(
             children: [
-              SizedBox(height: screenHeight * 0.02), // Top spacing
+              SizedBox(height: screenHeight * 0.02),
               Text(
                 "Enter your Weight",
                 style: theme.textTheme.headlineMedium?.copyWith(
@@ -65,13 +73,12 @@ class _WeightCollectionState extends State<WeightCollection> {
               UnitSwitcher(
                 onUnit1Pressed: changeToKg,
                 onUnit2Pressed: changeToLb,
-                isCmSelected: isKg,
+                isCmSelected:
+                    isKg, // you might want to rename `isCmSelected` → `isUnit1Selected`
                 unit1: 'kg',
                 unit2: 'lb',
               ),
               SizedBox(height: screenHeight * 0.04),
-
-              // Weight Scroll Selector Container
               Container(
                 height: screenHeight * 0.52,
                 padding: const EdgeInsets.symmetric(
@@ -108,9 +115,7 @@ class _WeightCollectionState extends State<WeightCollection> {
                         ),
                 ),
               ),
-
               SizedBox(height: screenHeight * 0.05),
-
               ContinueButton(
                 text: "Continue",
                 onPressed: continueToExperienceCollection,

@@ -28,22 +28,45 @@ class _BmiCardState extends State<BmiCard> {
   late double weight;
   late double? target;
 
-  void calculateBMI() {
-    double heightM = height / 100;
-    bmi = weight / (heightM * heightM);
-    if (target != null) {
-      targetBmi = target! / (heightM * heightM);
-    } else {
-      targetBmi = null;
-    }
+  Future<void> calculateParameters() async {
+  // Assign values safely
+  height = widget.userProfile.height;
+  weight = widget.userProfile.weightHistory.isNotEmpty
+      ? widget.userProfile.weightHistory.last.weight
+      : 0;
+  target = widget.userProfile.targetWeight;
+
+  calculateBMI();
+}
+
+void calculateBMI() {
+  // Check for invalid height
+  if (height <= 0 || weight <= 0) {
+    bmi = 0;
+    targetBmi = null;
+    return;
   }
 
-  Future<void> calculateParameters() async {
-    height = widget.userProfile.height;
-    weight = widget.userProfile.weightHistory.last.weight;
-    target = widget.userProfile.targetWeight;
-    calculateBMI();
+  double heightM = height / 100;
+
+  // BMI calculation with safety
+  double calculatedBmi = weight / (heightM * heightM);
+
+  if (calculatedBmi.isFinite) {
+    bmi = calculatedBmi;
+  } else {
+    bmi = 0;
   }
+
+  // Target BMI calculation
+  if (target != null && target! > 0) {
+    double calculatedTargetBmi = target! / (heightM * heightM);
+    targetBmi = calculatedTargetBmi.isFinite ? calculatedTargetBmi : null;
+  } else {
+    targetBmi = null;
+  }
+}
+
 
   @override
   void initState() {

@@ -1,10 +1,11 @@
-
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nextrep/core/common/providers.dart';
 import 'package:nextrep/core/services/exercises/exercise_raw_data_service.dart';
 import 'package:nextrep/core/theme/app_palette.dart';
 
 // The StatefulWidget class, corrected to use the file's conventional name.
-class FilterExercise extends StatefulWidget {
+class FilterExercise extends ConsumerStatefulWidget {
   // Receives the currently active filters from the previous screen.
   final Map<String, Set<String>> initialFilters;
 
@@ -14,11 +15,11 @@ class FilterExercise extends StatefulWidget {
   });
 
   @override
-  State<FilterExercise> createState() => _FilterExerciseState();
+  ConsumerState<FilterExercise> createState() => _FilterExerciseState();
 }
 
-class _FilterExerciseState extends State<FilterExercise> {
-  final _exerciseService = ExerciseService();
+class _FilterExerciseState extends ConsumerState<FilterExercise> {
+  late ExerciseService _exerciseService;
 
   // A temporary copy of the filters to be modified within this screen.
   late final Map<String, Set<String>> _tempFilters;
@@ -35,7 +36,7 @@ class _FilterExerciseState extends State<FilterExercise> {
   @override
   void initState() {
     super.initState();
-    // Create a deep copy to avoid modifying the original map until "Apply" is pressed.
+    _exerciseService = ref.read(exerciseServiceProvider);
     _tempFilters = {
       'category': Set<String>.from(widget.initialFilters['category']!),
       'bodyPart': Set<String>.from(widget.initialFilters['bodyPart']!),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nextrep/auth_wrapper.dart';
 import 'package:nextrep/bottom_navigator_controller.dart';
 import 'package:nextrep/core/common/utils/loader.dart';
 import 'package:nextrep/core/common/utils/show_snackbar.dart';
@@ -201,7 +202,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     }
   }
 
-  void continueWithGoogle() async {
+  Future<void> continueWithGoogle() async {
     // No form validation is needed for Google Sign-In.
     print("🚀 Initiating Google Sign-In flow");
 
@@ -252,7 +253,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
             // --- HANDLE SYNC SUCCESS ---
             print("✅ syncOnAuth success -> Navigating to HomePage");
             // Navigate to the main app screen for both new and returning users
-            NavigateWithFadeNoBack(context, BottomNavigatorController());
+            NavigateWithFadeNoBack(context, GenderCollection());
           },
         );
       },

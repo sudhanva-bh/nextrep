@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nextrep/bottom_navigator_controller.dart';
+import 'package:nextrep/core/common/providers.dart';
 import 'package:nextrep/core/navigation/navigate_to_classes/navigate_with_push.dart';
 import 'package:nextrep/core/theme/app_palette.dart';
 import 'package:nextrep/features/auth/presentation/widgets/continue_button.dart';
@@ -8,19 +11,16 @@ import 'package:nextrep/features/metrics/presentation/widget_helpers/height_scre
 import 'package:nextrep/features/metrics/presentation/widget_helpers/unit_switcher.dart';
 import 'package:nextrep/core/services/user_profile/user_profile_service.dart';
 
-enum Units {
-  cm,
-  inch,
-}
+enum Units { cm, inch }
 
-class HeightCollection extends StatefulWidget {
+class HeightCollection extends ConsumerStatefulWidget {
   const HeightCollection({super.key});
 
   @override
-  State<HeightCollection> createState() => _HeightCollectionState();
+  ConsumerState<HeightCollection> createState() => _HeightCollectionState();
 }
 
-class _HeightCollectionState extends State<HeightCollection> {
+class _HeightCollectionState extends ConsumerState<HeightCollection> {
   double height = 171.0;
 
   int get heightToCm => height.floor();
@@ -35,9 +35,13 @@ class _HeightCollectionState extends State<HeightCollection> {
   void setHeight(double inputHeight) => setState(() => height = inputHeight);
 
   Future<void> continueToWeightCollection() async {
-    final cloudService = UserProfileService();
-    await cloudService.updateHeight(height);
-    NavigateWithPush(context, WeightCollection());
+    final service = ref.read(userProfileServiceProvider);
+    await service.updateHeight(height);
+    NavigateWithPush(context, const WeightCollection());
+  }
+
+  void skipToHome() {
+    NavigateWithPush(context, const BottomNavigatorController());
   }
 
   @override
@@ -47,13 +51,18 @@ class _HeightCollectionState extends State<HeightCollection> {
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: skipToHome,           // Call your function here
+        label: const Text("Skip"),       // The text on the button
+        icon: const Icon(Icons.arrow_forward), // Optional icon
+      ),
       appBar: AppBar(),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16),
           child: Column(
             children: [
-              SizedBox(height: screenHeight * 0.02), // 2% top padding
+              SizedBox(height: screenHeight * 0.02),
               Text(
                 "Enter your Height",
                 style: theme.textTheme.headlineMedium?.copyWith(
@@ -70,8 +79,6 @@ class _HeightCollectionState extends State<HeightCollection> {
                 unit2: 'in',
               ),
               SizedBox(height: screenHeight * 0.04),
-
-              // Height Picker Container
               Container(
                 height: screenHeight * 0.52,
                 padding: const EdgeInsets.symmetric(
@@ -108,9 +115,7 @@ class _HeightCollectionState extends State<HeightCollection> {
                         ),
                 ),
               ),
-
               SizedBox(height: screenHeight * 0.05),
-
               ContinueButton(
                 text: "Continue",
                 onPressed: continueToWeightCollection,

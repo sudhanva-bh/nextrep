@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nextrep/core/constants/widget_properties.dart';
 import 'package:nextrep/core/theme/app_palette.dart';
-import 'package:nextrep/features/preview_workout/presentation/data/fetch_target_part_images.dart';
+import 'package:nextrep/features/preview_workout/data/fetch_target_part_images.dart';
 
 class Overview extends StatelessWidget {
   const Overview({

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nextrep/core/common/providers.dart';
 import 'package:nextrep/core/entities/workout/exercise_session.dart';
 import 'package:nextrep/core/navigation/navigate_to_classes/navigate_run_function.dart';
-import 'package:nextrep/core/services/exercises/exercise_raw_data_service.dart';
 import 'package:nextrep/core/theme/app_palette.dart';
 import 'package:nextrep/features/preview_workout/presentation/utils/bottom_workout_preview_popup.dart';
 
-class ExerciseCard extends StatelessWidget {
+class ExerciseCard extends ConsumerWidget {
   const ExerciseCard({
     super.key,
     required this.exercise,
@@ -13,10 +14,12 @@ class ExerciseCard extends StatelessWidget {
   final ExerciseSession exercise;
 
   @override
-  Widget build(BuildContext context) {
-    final fetchedExercise = ExerciseService().getExerciseById(
-      exercise.workoutId,
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final fetchedExercise = ref
+        .read(exerciseServiceProvider)
+        .getExerciseById(
+          exercise.workoutId,
+        );
     return NavigateRunFunction(
       onTap: () {
         BottomWorkoutPreviewPopup.showPopup(context, fetchedExercise);

@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:nextrep/core/entities/user/user_profile_model.dart';
@@ -72,6 +70,9 @@ class UserProfileService {
   /// Update gender
   Future<void> updateGender(String newGender) async =>
       updateProfile((p) => p.copyWith(gender: newGender));
+
+  Future<void> updatenewUser(bool status) async =>
+      updateProfile((p) => p.copyWith(isNewUser: status));
 
   /* --------------------- Weight History --------------------- */
 
@@ -153,62 +154,5 @@ extension BoxListenHelper<T> on ValueListenable<Box<T>> {
       notifier.value = transformer(value);
     });
     return notifier;
-  }
-}
-
-// Assuming UserProfileService, WeightEntry, and updateProfile are defined elsewhere.
-
-extension UserProfileDummyData on UserProfileService {
-  /// Seed dummy weight history data that trends towards extremes (both low and high).
-  /// This creates a "V-shaped" weight history over 180 days.
-  Future<void> addDummyData() async {
-    final rand = Random();
-    final now = DateTime.now();
-    final totalDuration = const Duration(days: 60);
-    final startDate = now.subtract(totalDuration);
-
-    final lossDuration = totalDuration.inDays / 2;
-    final gainDuration = totalDuration.inDays / 2;
-
-    // Define the extreme points of the weight journey
-    const highWeight = 95.0; // The starting and ending high point
-    const lowWeight = 65.0; // The lowest point in the middle
-
-    final entries = <WeightEntry>[];
-    var date = startDate;
-
-    while (date.isBefore(now)) {
-      final daysFromStart = date.difference(startDate).inDays;
-      double targetWeight;
-
-      if (daysFromStart < lossDuration) {
-        // --- Phase 1: Weight Loss (First 90 days) ---
-        // Calculate progress (0.0 to 1.0) through the loss phase
-        final progress = daysFromStart / lossDuration;
-        // Linearly interpolate from the high weight down to the low weight
-        targetWeight = highWeight - (highWeight - lowWeight) * progress;
-      } else {
-        // --- Phase 2: Weight Gain (Last 90 days) ---
-        // Calculate progress (0.0 to 1.0) through the gain phase
-        final progress = (daysFromStart - lossDuration) / gainDuration;
-        // Linearly interpolate from the low weight back up to the high weight
-        targetWeight = lowWeight + (highWeight - lowWeight) * progress;
-      }
-
-      // Add some random noise (+/- 2.0) to make the data look more realistic
-      final noise = (rand.nextDouble() - 0.5) * 4;
-      final finalWeight = (targetWeight + noise).clamp(
-        60.0,
-        100.0,
-      ); // Clamp to a safe range
-
-      entries.add(WeightEntry(date: date, weight: finalWeight));
-
-      // Advance time by a random amount (3-7 days)
-      date = date.add(Duration(days: 3 + rand.nextInt(5)));
-    }
-
-    // Save the generated history into the profile
-    await updateProfile((p) => p.copyWith(weightHistory: entries));
   }
 }

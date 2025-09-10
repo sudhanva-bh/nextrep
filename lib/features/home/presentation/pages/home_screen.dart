@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nextrep/core/common/providers.dart';
 import 'package:nextrep/core/constants/widget_properties.dart';
 import 'package:nextrep/core/navigation/navigate_to_classes/navigate_with_inkwell.dart';
-import 'package:nextrep/core/services/exercises/workouts_service.dart';
 import 'package:nextrep/core/theme/app_palette.dart';
 import 'package:nextrep/features/home/presentation/widgets/bmi/bmi_card.dart';
 import 'package:nextrep/features/home/presentation/widgets/daily_challenges/daily_challenges.dart';
 import 'package:nextrep/features/home/presentation/widgets/favourite_workouts/favourite_workouts.dart';
 import 'package:nextrep/features/home/presentation/widgets/todays_workout/todays_workout.dart';
 import 'package:nextrep/features/home/presentation/widgets/weekly_brief_progress/weekly_brief_progress.dart';
-import 'package:nextrep/core/services/user_profile/user_profile_service.dart';
 import 'package:nextrep/features/profile/presentation/pages/profile_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -20,11 +19,10 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomeScreen> {
-  final userProfileService = UserProfileService();
-
   @override
   Widget build(BuildContext context) {
-    final workoutsService = WorkoutsService();
+    final userProfileService = ref.watch(userProfileServiceProvider);
+    final workoutsService = ref.read(workoutsServiceProvider);
 
     final currentUserProfile = userProfileService.getFromLocal()!;
     return SafeArea(

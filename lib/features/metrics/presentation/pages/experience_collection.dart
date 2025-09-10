@@ -1,22 +1,24 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nextrep/bottom_navigator_controller.dart';
+import 'package:nextrep/core/common/providers.dart';
 import 'package:nextrep/core/constants/file_paths.dart';
 import 'package:nextrep/core/navigation/navigate_to_classes/navigate_with_push.dart';
 import 'package:nextrep/core/services/user_profile/profile_sync_service.dart';
 import 'package:nextrep/core/theme/app_palette.dart';
 import 'package:nextrep/features/auth/presentation/widgets/continue_button.dart';
 import 'package:nextrep/features/metrics/presentation/widget_helpers/experience_screen/experience_tile.dart';
-import 'package:nextrep/core/services/user_profile/user_profile_service.dart';
 
-class ExperienceCollection extends StatefulWidget {
+class ExperienceCollection extends ConsumerStatefulWidget {
   const ExperienceCollection({super.key});
 
   @override
-  State<ExperienceCollection> createState() => _ExperienceCollectionState();
+  ConsumerState<ExperienceCollection> createState() =>
+      _ExperienceCollectionState();
 }
 
-class _ExperienceCollectionState extends State<ExperienceCollection> {
+class _ExperienceCollectionState extends ConsumerState<ExperienceCollection> {
   Experience selectedExperience = Experience.beginner;
 
   String beginnerMessage =
@@ -50,20 +52,24 @@ class _ExperienceCollectionState extends State<ExperienceCollection> {
 
   void changeExperience(Experience newExperience) {
     setState(() {
-      if (selectedExperience == newExperience) {
-      } else {
-        selectedExperience = newExperience;
-      }
+      selectedExperience = newExperience;
     });
   }
 
   Future<void> continueToHomePage() async {
-    final cloudService = UserProfileService();
-    await cloudService.updateExperience(selectedExperience.name);
+    final userProfileService = ref.read(userProfileServiceProvider);
+    await userProfileService.updatenewUser(false);
+    await userProfileService.updateExperience(selectedExperience.name);
+
     await ProfileSyncService().syncProfileOnCommand(
       FirebaseAuth.instance.currentUser!.uid,
     );
-    NavigateWithPush(context, BottomNavigatorController());
+
+    NavigateWithPush(context, const BottomNavigatorController());
+  }
+
+  void skipToHome() {
+    NavigateWithPush(context, const BottomNavigatorController());
   }
 
   @override
@@ -71,6 +77,11 @@ class _ExperienceCollectionState extends State<ExperienceCollection> {
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: skipToHome, // Call your function here
+        label: const Text("Skip"), // The text on the button
+        icon: const Icon(Icons.arrow_forward), // Optional icon
+      ),
       body: Stack(
         children: [
           // Background image
@@ -80,20 +91,14 @@ class _ExperienceCollectionState extends State<ExperienceCollection> {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                // Animated image
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 200),
                   child: Image.asset(
                     currentImage,
                     key: ValueKey(currentImage),
-                    fit: BoxFit
-                        .cover, // use BoxFit.fill if you want no cropping at all
-                    height: screenHeight * (2 / 3),
-                    width: double.infinity,
+                    fit: BoxFit.cover,
                   ),
                 ),
-
-                // Overlay gradient
                 Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -109,8 +114,6 @@ class _ExperienceCollectionState extends State<ExperienceCollection> {
                     ),
                   ),
                 ),
-
-                // Fading message
                 Positioned(
                   bottom: 20,
                   left: 16,
@@ -137,30 +140,30 @@ class _ExperienceCollectionState extends State<ExperienceCollection> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Spacer(),
+                const Spacer(),
                 ExperienceTile(
                   enabled: selectedExperience == Experience.beginner,
                   gender: Experience.beginner,
                   onPressed: () => changeExperience(Experience.beginner),
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 ExperienceTile(
                   enabled: selectedExperience == Experience.intermediate,
                   gender: Experience.intermediate,
                   onPressed: () => changeExperience(Experience.intermediate),
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 ExperienceTile(
                   enabled: selectedExperience == Experience.advanced,
                   gender: Experience.advanced,
                   onPressed: () => changeExperience(Experience.advanced),
                 ),
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
                 ContinueButton(
                   text: "Continue",
                   onPressed: continueToHomePage,
                 ),
-                SizedBox(height: 32),
+                const SizedBox(height: 32),
               ],
             ),
           ),

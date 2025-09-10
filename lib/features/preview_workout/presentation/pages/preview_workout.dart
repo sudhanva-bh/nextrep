@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nextrep/core/common/providers.dart';
 import 'package:nextrep/core/common/utils/show_snackbar.dart';
 import 'package:nextrep/core/entities/exercise/exercise_model.dart';
 import 'package:nextrep/core/entities/workout/workout.dart';
@@ -13,21 +15,29 @@ import 'package:nextrep/features/preview_workout/presentation/widgets/exercise_s
 import 'package:nextrep/features/preview_workout/presentation/widgets/overview.dart';
 import 'package:nextrep/features/start_workout/presentation/pages/start_workout.dart';
 
-class PreviewWorkout extends StatefulWidget {
+class PreviewWorkout extends ConsumerStatefulWidget {
   final ValueListenable<Workout?> workoutListenable;
 
   const PreviewWorkout({super.key, required this.workoutListenable});
 
   @override
-  State<PreviewWorkout> createState() => _PreviewWorkoutState();
+  ConsumerState<PreviewWorkout> createState() => _PreviewWorkoutState();
 }
 
-class _PreviewWorkoutState extends State<PreviewWorkout> {
-  final workoutsService = ExerciseService();
+class _PreviewWorkoutState extends ConsumerState<PreviewWorkout> {
+  late ExerciseService _exerciseService;
+  late WorkoutsService _workoutsService;
+
+  @override
+  void initState() {
+    super.initState();
+    _exerciseService = ref.read(exerciseServiceProvider);
+    _workoutsService = ref.read(workoutsServiceProvider);
+  }
 
   List<Exercise> _getExercises(Workout workout) {
     return workout.exercises
-        .map((s) => workoutsService.getExerciseById(s.workoutId))
+        .map((s) => _exerciseService.getExerciseById(s.workoutId))
         .toList();
   }
 
@@ -117,7 +127,7 @@ class _PreviewWorkoutState extends State<PreviewWorkout> {
                   // Favourite button
                   IconButton(
                     onPressed: () async {
-                      await WorkoutsService().addFavourite(workout.workoutName);
+                      await _workoutsService.addFavourite(workout.workoutName);
                       showSnackBar(context, 'Workout added to favourites!');
                     },
                     icon: Icon(

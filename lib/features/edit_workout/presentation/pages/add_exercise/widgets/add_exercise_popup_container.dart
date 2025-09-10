@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nextrep/core/common/providers.dart';
 import 'package:nextrep/core/constants/widget_properties.dart';
 import 'package:nextrep/core/services/exercises/exercise_raw_data_service.dart';
 import 'package:nextrep/core/theme/app_palette.dart';
@@ -6,7 +8,7 @@ import 'package:nextrep/core/entities/exercise/exercise_model.dart';
 import 'package:nextrep/features/edit_workout/presentation/pages/add_exercise/widgets/filter_exercise.dart';
 import 'package:nextrep/features/edit_workout/presentation/pages/add_exercise/widgets/search_exercise_tile.dart';
 
-class AddExercisePopupContainer extends StatefulWidget {
+class AddExercisePopupContainer extends ConsumerStatefulWidget {
   const AddExercisePopupContainer({
     super.key,
     required this.scrollController,
@@ -17,20 +19,20 @@ class AddExercisePopupContainer extends StatefulWidget {
   final Function(String exerciseId) onAdd;
 
   @override
-  State<AddExercisePopupContainer> createState() =>
+  ConsumerState<AddExercisePopupContainer> createState() =>
       _AddExercisePopupContainerState();
 }
 
-class _AddExercisePopupContainerState extends State<AddExercisePopupContainer> {
-  final _exerciseService = ExerciseService();
+class _AddExercisePopupContainerState
+    extends ConsumerState<AddExercisePopupContainer> {
+  late ExerciseService _exerciseService;
   late final TextEditingController _searchController;
 
   List<Exercise> _allExercises = [];
   List<Exercise> _filteredExercises = [];
 
-  // State to hold active filters, now including targetMuscle
   final Map<String, Set<String>> _activeFilters = {
-    'category': {'strength'}, // Set default filter
+    'category': {'strength'},
     'bodyPart': <String>{},
     'targetMuscle': <String>{},
     'equipment': <String>{},
@@ -42,6 +44,7 @@ class _AddExercisePopupContainerState extends State<AddExercisePopupContainer> {
   @override
   void initState() {
     super.initState();
+    _exerciseService = ref.read(exerciseServiceProvider);
     _searchController = TextEditingController();
     _searchController.addListener(_filterExercises);
     _allExercises = _exerciseService.getAllExercises();

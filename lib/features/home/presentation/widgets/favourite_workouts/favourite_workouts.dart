@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nextrep/core/common/providers.dart';
 import 'package:nextrep/core/entities/workout/workout.dart';
-import 'package:nextrep/core/services/exercises/workouts_service.dart';
 import 'package:nextrep/features/home/presentation/widgets/favourite_workouts/favourite_workouts_tiles.dart';
 
-class FavouriteWorkouts extends StatelessWidget {
+class FavouriteWorkouts extends ConsumerWidget {
   const FavouriteWorkouts({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return ValueListenableBuilder<List<Workout>>(
-      valueListenable: WorkoutsService().getFavouriteWorkoutsListenable(),
+      valueListenable: ref.read(workoutsServiceProvider).getFavouriteWorkoutsListenable(),
       builder: (context, favouriteExercises, _) {
         if (favouriteExercises.isEmpty) {
           return Column(

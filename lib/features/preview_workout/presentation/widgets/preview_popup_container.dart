@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nextrep/core/constants/widget_properties.dart';
 import 'package:nextrep/core/entities/exercise/exercise_model.dart';
 import 'package:nextrep/core/theme/app_palette.dart';
-import 'package:nextrep/features/preview_workout/presentation/data/fetch_target_part_images.dart';
+import 'package:nextrep/features/preview_workout/data/fetch_target_part_images.dart';
 import 'package:nextrep/features/preview_workout/presentation/utils/consequtive_images.dart';
 import 'package:nextrep/features/preview_workout/presentation/utils/info_tooltip.dart';
 import 'package:nextrep/features/preview_workout/presentation/utils/numbered_list.dart';

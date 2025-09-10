@@ -1,25 +1,30 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:nextrep/bottom_navigator_controller.dart';
-import 'package:nextrep/core/common/utils/loader.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nextrep/core/services/shared_preferences/shared_preferences.dart';
 import 'package:nextrep/features/welcome/presentation/pages/welcome_page.dart';
+import 'bottom_navigator_controller.dart';
 
-class AuthWrapper extends StatelessWidget {
+class AuthWrapper extends ConsumerWidget {
   const AuthWrapper({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
+  Widget build(BuildContext context, WidgetRef ref) {
+    return FutureBuilder<bool>(
+      future: AuthPrefs.isLoggedIn(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Loader();
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
-        if (snapshot.hasData) {
-          return BottomNavigatorController();
-        } else {
-          return WelcomePage();
+
+        // Show WelcomePage if not logged in
+        if (!(snapshot.data ?? false)) {
+          return const WelcomePage();
         }
+
+        // If logged in, go to main app
+        return BottomNavigatorController();
       },
     );
   }

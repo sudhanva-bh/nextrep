@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:nextrep/core/error/failure.dart';
+import 'package:nextrep/core/services/shared_preferences/shared_preferences.dart';
 
 /// A simple service class to wrap FirebaseAuth logic.
 class AuthService {
@@ -20,6 +21,7 @@ class AuthService {
         email: email,
         password: password,
       );
+      await AuthPrefs.setLoggedIn(true);
       return right(result.user!);
     } on FirebaseAuthException catch (e) {
       return left(Failure(e.message ?? "Login failed"));
@@ -38,6 +40,7 @@ class AuthService {
         email: email,
         password: password,
       );
+      await AuthPrefs.setLoggedIn(true);
       return right(result.user!);
     } on FirebaseAuthException catch (e) {
       return left(Failure(e.message ?? "Registration failed"));
@@ -81,6 +84,7 @@ class AuthService {
       final UserCredential result = await _auth.signInWithCredential(
         credential,
       );
+      await AuthPrefs.setLoggedIn(true);
       return right(result.user!);
     } on FirebaseAuthException catch (e) {
       return left(Failure(e.message ?? "Registration failed"));
@@ -92,7 +96,9 @@ class AuthService {
   /// Sign out the current user
   Future<Either<Failure, Unit>> signOut() async {
     try {
+      await _googleSignIn.signOut();
       await _auth.signOut();
+      await AuthPrefs.setLoggedIn(false);
       return right(unit);
     } catch (e) {
       return left(Failure(e.toString()));

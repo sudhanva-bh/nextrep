@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nextrep/core/common/providers.dart';
 import 'package:nextrep/core/common/utils/show_snackbar.dart';
 import 'package:nextrep/core/entities/exercise/exercise_model.dart';
 import 'package:nextrep/core/entities/workout/exercise_session.dart';
@@ -10,7 +12,7 @@ import 'package:nextrep/core/theme/app_palette.dart';
 import 'package:nextrep/features/edit_workout/presentation/pages/add_exercise/add_exercise.dart';
 import 'package:nextrep/features/edit_workout/presentation/pages/edit_exercise.dart/widgets/edit_tile.dart';
 
-class EditWorkout extends StatefulWidget {
+class EditWorkout extends ConsumerStatefulWidget {
   const EditWorkout({
     super.key,
     required this.workout,
@@ -21,10 +23,10 @@ class EditWorkout extends StatefulWidget {
   final List<Exercise> exercises;
 
   @override
-  State<EditWorkout> createState() => _EditWorkoutState();
+  ConsumerState<EditWorkout> createState() => _EditWorkoutState();
 }
 
-class _EditWorkoutState extends State<EditWorkout> {
+class _EditWorkoutState extends ConsumerState<EditWorkout> {
   late List<Exercise> _exercises; // local copy so we can reorder
   late Workout _workout;
   late WorkoutsService _workoutsService;
@@ -33,8 +35,8 @@ class _EditWorkoutState extends State<EditWorkout> {
   @override
   void initState() {
     super.initState();
-    _workoutsService = WorkoutsService();
-    _exerciseService = ExerciseService();
+    _workoutsService = ref.read(workoutsServiceProvider);
+    _exerciseService = ref.read(exerciseServiceProvider);
     _exercises = List.from(widget.exercises); // clone list
     _workout = widget.workout.copyWith();
   }

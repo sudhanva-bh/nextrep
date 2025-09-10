@@ -1,20 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nextrep/core/common/providers.dart';
 import 'package:nextrep/core/entities/challenges/challenge.dart';
 import 'package:nextrep/core/services/challenges/challenges_service.dart';
 import 'package:nextrep/core/theme/app_palette.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
-class ChallengeDetailsPage extends StatefulWidget {
+class ChallengeDetailsPage extends ConsumerStatefulWidget {
   final String challengeTitle;
   const ChallengeDetailsPage({super.key, required this.challengeTitle});
 
   @override
-  State<ChallengeDetailsPage> createState() => _ChallengeDetailsPageState();
+  ConsumerState<ChallengeDetailsPage> createState() => _ChallengeDetailsPageState();
 }
 
-class _ChallengeDetailsPageState extends State<ChallengeDetailsPage> {
-  final _challengesService = ChallengesService();
+class _ChallengeDetailsPageState extends ConsumerState<ChallengeDetailsPage> {
+  late ChallengesService _challengesService;
+
+  @override
+  void initState() {
+    _challengesService = ref.read(challengesServiceProvider);
+    super.initState();
+  }
 
   void _onDayTapped(Challenge challenge, int dayIndex) {
     HapticFeedback.lightImpact();

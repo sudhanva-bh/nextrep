@@ -4,7 +4,7 @@ import 'package:nextrep/core/constants/widget_properties.dart';
 import 'package:nextrep/core/entities/exercise/exercise_model.dart';
 import 'package:nextrep/core/entities/workout/exercise_session.dart';
 import 'package:nextrep/core/theme/app_palette.dart';
-import 'package:nextrep/features/preview_workout/presentation/data/fetch_target_part_images.dart';
+import 'package:nextrep/features/preview_workout/data/fetch_target_part_images.dart';
 import 'package:nextrep/features/start_workout/presentation/widgets/show_sets_tile.dart';
 
 class CurrentWorkout extends StatelessWidget {

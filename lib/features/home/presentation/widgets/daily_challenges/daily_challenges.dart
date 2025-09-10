@@ -1,17 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nextrep/core/common/providers.dart';
 import 'package:nextrep/core/entities/challenges/challenge.dart';
 import 'package:nextrep/core/services/challenges/challenges_service.dart';
 import 'package:nextrep/features/home/presentation/widgets/daily_challenges/daily_challenges_card.dart';
 
-class DailyChallenges extends StatefulWidget {
+class DailyChallenges extends ConsumerStatefulWidget {
   const DailyChallenges({super.key});
 
   @override
-  State<DailyChallenges> createState() => _DailyChallengesState();
+  ConsumerState<DailyChallenges> createState() => _DailyChallengesState();
 }
 
-class _DailyChallengesState extends State<DailyChallenges> {
-  final _challengesService = ChallengesService();
+class _DailyChallengesState extends ConsumerState<DailyChallenges> {
+  late ChallengesService _challengesService;
+
+  @override
+  void initState() {
+    _challengesService = ref.read(challengesServiceProvider);
+    super.initState();
+  }
 
   void _handleChallengeTap(Challenge challenge) {
     if (challenge.isCompleted) {

@@ -1,9 +1,12 @@
 // FILE: lib/pages/profile_page.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nextrep/auth_wrapper.dart';
+import 'package:nextrep/core/common/providers.dart';
 import 'package:nextrep/core/common/utils/show_snackbar.dart';
 import 'package:nextrep/core/entities/user/user_profile_model.dart';
+import 'package:nextrep/core/services/shared_preferences/shared_preferences.dart';
 import 'package:nextrep/core/services/user_profile/profile_sync_service.dart';
 import 'package:nextrep/core/services/user_profile/user_profile_service.dart';
 import 'package:nextrep/features/auth/data/auth_service.dart';
@@ -13,15 +16,15 @@ import 'package:nextrep/features/profile/presentation/widgets/profile_detail_til
 import 'package:nextrep/features/profile/presentation/widgets/profile_header.dart';
 import 'package:nextrep/features/profile/presentation/widgets/profile_section_card.dart';
 
-class ProfilePage extends StatefulWidget {
+class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  ConsumerState<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
-  final _profileService = UserProfileService();
+class _ProfilePageState extends ConsumerState<ProfilePage> {
+  late final UserProfileService _profileService;
   final _authService = AuthService();
   final _syncService = ProfileSyncService();
 
@@ -40,6 +43,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
+    _profileService = ref.read(userProfileServiceProvider);
     _nameController = TextEditingController();
     _nameController.addListener(() {
       if (_isEditing) setState(() => _hasChanges = true);
@@ -152,6 +156,12 @@ class _ProfilePageState extends State<ProfilePage> {
       final uid = _authService.currentUser!.uid;
       await _syncService.syncProfileOnLogout(uid);
       await _authService.signOut();
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AuthWrapper(),
+        ),
+      );
 
       if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(

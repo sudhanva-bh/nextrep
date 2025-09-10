@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nextrep/core/common/providers.dart';
 import 'package:nextrep/core/common/utils/show_snackbar.dart';
 import 'package:nextrep/core/entities/exercise/exercise_model.dart';
 import 'package:nextrep/core/entities/workout/exercise_session.dart';
@@ -12,7 +14,7 @@ import 'package:nextrep/features/start_workout/presentation/widgets/end_workout_
 import 'package:nextrep/features/start_workout/presentation/widgets/exercise_session_card.dart';
 import 'package:nextrep/features/start_workout/presentation/widgets/exercise_timer.dart';
 
-class StartWorkout extends StatefulWidget {
+class StartWorkout extends ConsumerStatefulWidget {
   final Workout workout;
   final DateTime startTime;
 
@@ -23,11 +25,11 @@ class StartWorkout extends StatefulWidget {
   });
 
   @override
-  State<StartWorkout> createState() => _StartWorkoutState();
+  ConsumerState<StartWorkout> createState() => _StartWorkoutState();
 }
 
-class _StartWorkoutState extends State<StartWorkout> {
-  final _exerciseService = ExerciseService();
+class _StartWorkoutState extends ConsumerState<StartWorkout> {
+  late ExerciseService _exerciseService;
   late Workout _workout;
   late List<Exercise> _exercises;
 
@@ -218,6 +220,8 @@ class _StartWorkoutState extends State<StartWorkout> {
   @override
   void initState() {
     super.initState();
+
+    _exerciseService = ref.read(exerciseServiceProvider);
 
     _workout = widget.workout.copyWith(
       exercises: widget.workout.exercises

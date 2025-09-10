@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:nextrep/core/common/providers.dart';
 import 'package:nextrep/core/constants/widget_properties.dart';
 import 'package:nextrep/core/entities/workout/workout.dart';
 import 'package:nextrep/core/navigation/navigate_to_classes/navigate_with_inkwell.dart';
-import 'package:nextrep/core/services/exercises/workouts_service.dart';
 import 'package:nextrep/core/theme/app_palette.dart';
 import 'package:nextrep/features/home/presentation/widgets/favourite_workouts/folder.dart';
 import 'package:nextrep/features/preview_workout/presentation/pages/preview_workout.dart';
 
-class FavouriteWorkoutsTiles extends StatelessWidget {
+class FavouriteWorkoutsTiles extends ConsumerWidget {
   const FavouriteWorkoutsTiles({super.key, required this.workout});
   final Workout workout;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return NavigateWithInkwell(
-      destination: PreviewWorkout(workoutListenable: WorkoutsService().workoutListenable(workout.workoutName)),
+      destination: PreviewWorkout(workoutListenable: ref.read(workoutsServiceProvider).workoutListenable(workout.workoutName)),
       child: Container(
         width: double.infinity,
         height: 176,
@@ -66,40 +67,6 @@ class FavouriteWorkoutsTiles extends StatelessWidget {
                     ),
                   ],
                 ),
-                // child: Column(
-                //   children: [
-                //     Row(
-                //       children: [
-                //         Container(
-                //           padding: EdgeInsets.all(6),
-                //           decoration: BoxDecoration(
-                //             color: AppPalette.lightSurface,
-                //             borderRadius: BorderRadius.circular(100),
-                //             boxShadow: WidgetProperties.dropShadow,
-                //           ),
-
-                //           child: Center(
-                //             child: Icon(
-                //               Icons.fitness_center,
-                //               size: 24,
-                //             ),
-                //           ),
-                //         ),
-                //         SizedBox(width: 14),
-                //         Text(
-                //           "Today's\nWorkout",
-                //           style: TextStyle(
-                //             fontSize: 17,
-                //             height: 1.16,
-                //             letterSpacing: 0.06,
-                //             fontWeight: FontWeight.w600,
-                //           ),
-                //         ),
-                //       ],
-                //     ),
-                //     SizedBox(height: 25),
-                //   ],
-                // ),
               ),
             ),
           ],

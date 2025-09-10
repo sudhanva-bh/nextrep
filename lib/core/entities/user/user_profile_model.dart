@@ -32,7 +32,7 @@ class UserProfile extends HiveObject {
     required this.experience,
     required this.gender,
     this.targetWeight,
-    this.isNewUser = false, // 👈 default value
+    this.isNewUser = true,
   });
 
   factory UserProfile.fromMap(Map<String, dynamic> map) {
@@ -50,7 +50,7 @@ class UserProfile extends HiveObject {
       experience: map['experience'] ?? '',
       gender: map['gender'] ?? '',
       targetWeight: (map['targetWeight'] as num?)?.toDouble(),
-      isNewUser: map['isNewUser'] ?? false,
+      isNewUser: map['isNewUser'] ?? true,
     );
   }
 
